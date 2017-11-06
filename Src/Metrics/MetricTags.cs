@@ -55,6 +55,17 @@ namespace Metrics
         public static implicit operator MetricTags(string[] tags)
         {
             return new MetricTags(tags);
-        }
-    }
+		}
+
+		public override int GetHashCode()
+		{
+			const int prime = 31;
+			var hash = 17;
+			foreach (var tag in this.tags)
+			{
+				hash = (hash * prime) + tag.GetHashCode();
+			}
+			return hash;
+		}
+	}
 }

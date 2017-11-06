@@ -57,19 +57,39 @@ namespace Metrics
                     DisableAllReports();
                 };
             }
-        }
+		}
 
-        /// <summary>
-        /// Create HTTP endpoint where metrics will be available in various formats:
-        /// GET / => visualization application
-        /// GET /json => metrics serialized as JSON
-        /// GET /text => metrics in human readable text format
-        /// </summary>
-        /// <param name="httpUriPrefix">prefix where to start HTTP endpoint</param>
-        /// <param name="filter">Only report metrics that match the filter.</param> 
-        /// <param name="maxRetries">maximum number of attempts to start the http listener. Note the retry time between attempts is dependent on this value</param>
-        /// <returns>Chain-able configuration object.</returns>
-        public MetricsConfig WithHttpEndpoint(string httpUriPrefix, MetricsFilter filter = null, int maxRetries = 3)
+		/// <summary>
+		/// True if tags should be included as part of the unique identifier of a metric i.e. the metric name; otherwise, false.
+		/// </summary>
+		public static bool UseTagsIdentifiers { get; private set; }
+
+		/// <summary>
+		/// Include tags as part of the unique identifier of a metric i.e. the metric name.
+		/// </summary>
+		/// <returns>Chain-able configuration object.</returns>
+		public MetricsConfig WithTagsIdentifiers()
+		{
+			if (this.isDisabled)
+			{
+				return this;
+			}
+
+			UseTagsIdentifiers = true;
+			return this;
+		}
+
+		/// <summary>
+		/// Create HTTP endpoint where metrics will be available in various formats:
+		/// GET / => visualization application
+		/// GET /json => metrics serialized as JSON
+		/// GET /text => metrics in human readable text format
+		/// </summary>
+		/// <param name="httpUriPrefix">prefix where to start HTTP endpoint</param>
+		/// <param name="filter">Only report metrics that match the filter.</param> 
+		/// <param name="maxRetries">maximum number of attempts to start the http listener. Note the retry time between attempts is dependent on this value</param>
+		/// <returns>Chain-able configuration object.</returns>
+		public MetricsConfig WithHttpEndpoint(string httpUriPrefix, MetricsFilter filter = null, int maxRetries = 3)
         {
             if (this.isDisabled)
             {
