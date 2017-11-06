@@ -37,7 +37,7 @@ namespace Metrics.Core
 
             public TMetric GetOrAdd(string name, MetricTags tags, Func<Tuple<TMetric, TValue>> metricProvider)
 			{
-				var key = MetricsConfig.UseTagsIdentifiers ? name + tags.GetHashCode() : name;
+				var key = MetricsConfig.UseTagIdentifiers ? name + tags.GetHashCode() : name;
 				return this.metrics.GetOrAdd(key, n =>
                 {
                     var result = metricProvider();

@@ -62,20 +62,20 @@ namespace Metrics
 		/// <summary>
 		/// True if tags should be included as part of the unique identifier of a metric i.e. the metric name; otherwise, false.
 		/// </summary>
-		public static bool UseTagsIdentifiers { get; private set; }
+		public static bool UseTagIdentifiers { get; private set; }
 
 		/// <summary>
 		/// Include tags as part of the unique identifier of a metric i.e. the metric name.
 		/// </summary>
 		/// <returns>Chain-able configuration object.</returns>
-		public MetricsConfig WithTagsIdentifiers()
+		public MetricsConfig WithTagIdentifiers()
 		{
 			if (this.isDisabled)
 			{
 				return this;
 			}
 
-			UseTagsIdentifiers = true;
+			UseTagIdentifiers = true;
 			return this;
 		}
 
