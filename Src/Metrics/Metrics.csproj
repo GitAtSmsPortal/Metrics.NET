@@ -39,6 +39,14 @@
     <NoWarn>1591; 1570; 1587;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ConcurrencyUtilities, Version=0.1.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ConcurrencyUtils.0.1.4\lib\net45\ConcurrencyUtilities.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="HdrHistogram, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\HdrHistogram.2.5.0\lib\net45\HdrHistogram.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -49,16 +57,6 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AdvancedMetricsContext.cs" />
-    <Compile Include="App_Packages\ConcurrencyUtils.0.1.4\AtomicIntArray.cs" />
-    <Compile Include="App_Packages\ConcurrencyUtils.0.1.4\AtomicInteger.cs" />
-    <Compile Include="App_Packages\ConcurrencyUtils.0.1.4\AtomicLong.cs" />
-    <Compile Include="App_Packages\ConcurrencyUtils.0.1.4\AtomicLongArray.cs" />
-    <Compile Include="App_Packages\ConcurrencyUtils.0.1.4\PaddedAtomicLong.cs" />
-    <Compile Include="App_Packages\ConcurrencyUtils.0.1.4\Striped64.cs" />
-    <Compile Include="App_Packages\ConcurrencyUtils.0.1.4\StripedLongAdder.cs" />
-    <Compile Include="App_Packages\ConcurrencyUtils.0.1.4\ThreadLocalLongAdder.cs" />
-    <Compile Include="App_Packages\ConcurrencyUtils.0.1.4\ThreadLocalRandom.cs" />
-    <Compile Include="App_Packages\ConcurrencyUtils.0.1.4\VolatileDouble.cs" />
     <Compile Include="App_Packages\HdrHistogram\AbstractHistogram.cs">
       <SubType>Code</SubType>
     </Compile>

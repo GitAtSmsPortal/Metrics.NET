@@ -1,7 +1,7 @@
 ﻿
 using System;
 using System.Diagnostics;
-using Metrics.ConcurrencyUtilities;
+using ConcurrencyUtilities;
 
 namespace Metrics.Utils
 {

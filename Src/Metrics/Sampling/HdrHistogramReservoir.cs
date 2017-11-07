@@ -1,5 +1,5 @@
 ﻿using HdrHistogram;
-using Metrics.ConcurrencyUtilities;
+using ConcurrencyUtilities;
 
 namespace Metrics.Sampling
 {
