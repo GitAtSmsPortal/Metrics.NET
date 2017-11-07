@@ -61,9 +61,12 @@ namespace Metrics
 		{
 			const int prime = 31;
 			var hash = 17;
-			foreach (var tag in this.tags)
+			foreach (var tag in this.Tags)
 			{
-				hash = (hash * prime) + tag.GetHashCode();
+				if (!string.IsNullOrWhiteSpace(tag))
+				{
+					hash = (hash*prime) + tag.GetHashCode();
+				}
 			}
 			return hash;
 		}
