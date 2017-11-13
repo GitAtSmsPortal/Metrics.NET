@@ -15,22 +15,15 @@ namespace Metrics
     {
         private static readonly ILog log = LogProvider.GetCurrentClassLogger();
 
-        private static readonly DefaultMetricsContext globalContext;
-        private static readonly MetricsConfig config;
+        private static DefaultMetricsContext globalContext;
+        private static MetricsConfig config;
         
         internal static readonly MetricsContext Internal = new DefaultMetricsContext("Metrics.NET");
         
         static Metric()
-        {
-            globalContext = new DefaultMetricsContext(GetGlobalContextName());
-            if (MetricsConfig.GloballyDisabledMetrics)
-            {
-                globalContext.CompletelyDisableMetrics();
-                log.Info(() => "Metrics: Metrics.NET Library is completely disabled. Set Metrics.CompletelyDisableMetrics to false to re-enable.");
-            }
-            config = new MetricsConfig(globalContext);
-            config.ApplySettingsFromConfigFile();
-        }
+		{
+			InitConfig(GetGlobalContextName());
+		}
 
         /// <summary>
         /// Exposes advanced operations that are possible on this metrics context.
@@ -67,25 +60,43 @@ namespace Metrics
         public static void ShutdownContext(string contextName)
         {
             globalContext.ShutdownContext(contextName);
-        }
+		}
 
-        /// <summary>
-        /// Entrypoint for Global Metrics Configuration.
-        /// </summary>
-        /// <example>
-        /// <code>
-        /// Metric.Config
-        ///     .WithHttpEndpoint("http://localhost:1234/")
-        ///     .WithErrorHandler(x => Console.WriteLine(x.ToString()))
-        ///     .WithAllCounters()
-        ///     .WithReporting(config => config
-        ///         .WithConsoleReport(TimeSpan.FromSeconds(30))
-        ///         .WithCSVReports(@"c:\temp\reports\", TimeSpan.FromSeconds(10))
-        ///         .WithTextFileReport(@"C:\temp\reports\metrics.txt", TimeSpan.FromSeconds(10))
-        ///     );
-        /// </code>
-        /// </example>
-        public static MetricsConfig Config { get { return config; } }
+		public static MetricsConfig EmptyGlobalContextConfig()
+		{
+			return InitConfig(string.Empty);
+		}
+
+	    private static MetricsConfig InitConfig(string context)
+		{
+			globalContext = new DefaultMetricsContext(context);
+			if (MetricsConfig.GloballyDisabledMetrics)
+			{
+				globalContext.CompletelyDisableMetrics();
+				log.Info(() => "Metrics: Metrics.NET Library is completely disabled. Set Metrics.CompletelyDisableMetrics to false to re-enable.");
+			}
+			config = new MetricsConfig(globalContext);
+			config.ApplySettingsFromConfigFile();
+			return config;
+		}
+
+	    /// <summary>
+		/// Entrypoint for Global Metrics Configuration.
+		/// </summary>
+		/// <example>
+		/// <code>
+		/// Metric.Config
+		///     .WithHttpEndpoint("http://localhost:1234/")
+		///     .WithErrorHandler(x => Console.WriteLine(x.ToString()))
+		///     .WithAllCounters()
+		///     .WithReporting(config => config
+		///         .WithConsoleReport(TimeSpan.FromSeconds(30))
+		///         .WithCSVReports(@"c:\temp\reports\", TimeSpan.FromSeconds(10))
+		///         .WithTextFileReport(@"C:\temp\reports\metrics.txt", TimeSpan.FromSeconds(10))
+		///     );
+		/// </code>
+		/// </example>
+		public static MetricsConfig Config { get { return config; } }
 
         /// <summary>
         /// Register a performance counter as a Gauge metric.

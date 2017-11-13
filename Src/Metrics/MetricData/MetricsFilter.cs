@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+
 namespace Metrics.MetricData
 {
     public enum MetricType
@@ -13,10 +14,9 @@ namespace Metrics.MetricData
     }
 
     public interface MetricsFilter : Utils.IHideObjectMembers
-    {
-        bool IsMatch(string context);
-
-        bool IsMatch(GaugeValueSource gauge);
+	{
+		bool IsMatch(string context);
+		bool IsMatch(GaugeValueSource gauge);
         bool IsMatch(CounterValueSource counter);
         bool IsMatch(MeterValueSource meter);
         bool IsMatch(HistogramValueSource histogram);
@@ -24,15 +24,15 @@ namespace Metrics.MetricData
     }
 
     public class Filter : MetricsFilter
-    {
-        private Predicate<string> context;
-        private Predicate<string> name;
+	{
+		private Predicate<string> context;
+		private readonly List<Predicate<string>> names = new List<Predicate<string>>();
         private HashSet<MetricType> types;
 
         private class NoOpFilter : MetricsFilter
-        {
-            public bool IsMatch(string context) { return true; }
-            public bool IsMatch(GaugeValueSource gauge) { return true; }
+		{
+			public bool IsMatch(string context) { return true; }
+			public bool IsMatch(GaugeValueSource gauge) { return true; }
             public bool IsMatch(CounterValueSource counter) { return true; }
             public bool IsMatch(MeterValueSource meter) { return true; }
             public bool IsMatch(HistogramValueSource histogram) { return true; }
@@ -49,47 +49,52 @@ namespace Metrics.MetricData
 			{
 				return new Filter();
 			}
-        }
+		}
 
-        public Filter WhereContext(Predicate<string> condition)
-        {
-            this.context = condition;
-            return this;
-        }
+		public Filter WhereContext(Predicate<string> condition)
+		{
+			this.context = condition;
+			return this;
+		}
 
         public Filter WhereContext(string context)
         {
             return WhereContext(c => c.Equals(context, StringComparison.OrdinalIgnoreCase));
         }
 
-        public Filter WhereName(Predicate<string> condition)
-        {
-            this.name = condition;
-            return this;
-        }
+		public Filter WhereName(Predicate<string> condition)
+		{
+			this.names.Add(condition);
+			return this;
+		}
 
-        public Filter WhereNameStartsWith(string name)
-        {
-            return WhereName(n => n.StartsWith(name, StringComparison.OrdinalIgnoreCase));
-        }
+		public Filter WhereNameStartsWith(string name)
+		{
+			return WhereName(n => n.StartsWith(name, StringComparison.OrdinalIgnoreCase));
+		}
 
-        public Filter WhereType(params MetricType[] types)
+		public Filter WhereNameNotStartsWith(string name)
+		{
+			return WhereName(n => !n.StartsWith(name, StringComparison.OrdinalIgnoreCase));
+		}
+
+		public Filter WhereType(params MetricType[] types)
         {
             this.types = new HashSet<MetricType>(types);
             return this;
-        }
+		}
 
-        public bool IsMatch(string context)
-        {
-            if (this.context != null && !this.context(context))
-            {
-                return false;
-            }
+		public bool IsMatch(string context)
+		{
+			if (this.context != null && !this.context(context))
+			{
+				return false;
+			}
 
-            return true;
-        }
+			return true;
+		}
 
-        public bool IsMatch(GaugeValueSource gauge)
+		public bool IsMatch(GaugeValueSource gauge)
         {
             if (types != null && !types.Contains(MetricType.Gauge))
             {
@@ -136,12 +141,15 @@ namespace Metrics.MetricData
 
         private bool IsNameMatch(string name)
         {
-            if (this.name != null && !this.name(name))
-            {
-                return false;
-            }
+	        foreach (var predicate in names)
+			{
+				if (predicate != null && !predicate(name))
+				{
+					return false;
+				}
+			}
 
-            return true;
-        }
+			return true;
+		}
     }
 }
