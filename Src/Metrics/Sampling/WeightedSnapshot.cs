@@ -49,7 +49,7 @@ namespace Metrics.Sampling
             for (var i = 0; i < sample.Length; i++)
             {
                 this.values[i] = sample[i].Value;
-                this.normWeights[i] = sample[i].Weight / sumWeight;
+                this.normWeights[i] = sumWeight == 0 ? 0 : sample[i].Weight / sumWeight;
                 if (i > 0)
                 {
                     this.quantiles[i] = this.quantiles[i - 1] + this.normWeights[i - 1];
