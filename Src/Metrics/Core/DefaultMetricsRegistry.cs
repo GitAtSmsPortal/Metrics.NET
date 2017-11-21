@@ -63,6 +63,13 @@ namespace Metrics.Core
                     resetable?.Reset();
                 }
             }
+
+	        public void Remove(string name, MetricTags tags)
+			{
+				var key = MetricsConfig.UseTagIdentifiers ? name + tags.GetHashCode() : name;
+				MetricMeta m;
+		        this.metrics.TryRemove(key, out m);
+	        }
         }
 
         private readonly MetricMetaCatalog<MetricValueProvider<double>, GaugeValueSource, double> gauges = new MetricMetaCatalog<MetricValueProvider<double>, GaugeValueSource, double>();
@@ -135,15 +142,40 @@ namespace Metrics.Core
             this.meters.Clear();
             this.histograms.Clear();
             this.timers.Clear();
-        }
+		}
 
-        public void ResetMetricsValues()
-        {
-            this.gauges.Reset();
-            this.counters.Reset();
-            this.meters.Reset();
-            this.histograms.Reset();
-            this.timers.Reset();
-        }
-    }
+		public void ResetMetricsValues()
+		{
+			this.gauges.Reset();
+			this.counters.Reset();
+			this.meters.Reset();
+			this.histograms.Reset();
+			this.timers.Reset();
+		}
+
+		public void DeregisterGauge(string name, MetricTags tags)
+		{
+			this.gauges.Remove(name, tags);
+		}
+
+		public void DeregisterMeter(string name, MetricTags tags)
+		{
+			this.meters.Remove(name, tags);
+		}
+
+		public void DeregisterCounter(string name, MetricTags tags)
+		{
+			this.counters.Remove(name, tags);
+		}
+
+		public void DeregisterHistogram(string name, MetricTags tags)
+		{
+			this.histograms.Remove(name, tags);
+		}
+
+		public void DeregisterTimer(string name, MetricTags tags)
+		{
+			this.timers.Remove(name, tags);
+		}
+	}
 }

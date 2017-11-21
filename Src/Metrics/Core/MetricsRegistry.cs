@@ -32,6 +32,17 @@ namespace Metrics.Core
             where T : TimerImplementation;
 
         void ClearAllMetrics();
+
         void ResetMetricsValues();
-    }
+
+		void DeregisterGauge(string name, MetricTags tags);
+
+		void DeregisterMeter(string name, MetricTags tags);
+
+		void DeregisterCounter(string name, MetricTags tags);
+
+		void DeregisterHistogram(string name, MetricTags tags);
+
+		void DeregisterTimer(string name, MetricTags tags);
+	}
 }

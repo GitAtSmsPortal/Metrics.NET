@@ -10,8 +10,7 @@ namespace Metrics.Core
         {
             public static readonly NullMetric Instance = new NullMetric();
             private static readonly TimerContext NullContext = new TimerContext(NullMetric.Instance, null);
-
-            public void Increment() { }
+			public void Increment() { }
             public void Increment(long value) { }
             public void Decrement() { }
             public void Decrement(long value) { }
@@ -48,9 +47,14 @@ namespace Metrics.Core
         public RegistryDataProvider DataProvider => NullMetric.Instance;
 
         public void ClearAllMetrics() { }
-        public void ResetMetricsValues() { }
+		public void ResetMetricsValues() { }
+		public void DeregisterGauge(string name, MetricTags tags) { }
+		public void DeregisterMeter(string name, MetricTags tags) { }
+		public void DeregisterCounter(string name, MetricTags tags) { }
+		public void DeregisterHistogram(string name, MetricTags tags) { }
+		public void DeregisterTimer(string name, MetricTags tags) { }
 
-        public void Gauge(string name, Func<MetricValueProvider<double>> valueProvider, Unit unit, MetricTags tags) { }
+		public void Gauge(string name, Func<MetricValueProvider<double>> valueProvider, Unit unit, MetricTags tags) { }
 
         public Counter Counter<T>(string name, Func<T> builder, Unit unit, MetricTags tags) where T : CounterImplementation
         {

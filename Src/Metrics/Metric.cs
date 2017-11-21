@@ -171,20 +171,70 @@ namespace Metrics
         public static Histogram Histogram(string name, Unit unit, SamplingType samplingType = SamplingType.Default, MetricTags tags = default(MetricTags))
         {
             return globalContext.Histogram(name, unit, samplingType, tags);
-        }
+		}
 
-        /// <summary>
-        /// A timer is basically a histogram of the duration of a type of event and a meter of the rate of its occurrence.
-        /// <seealso cref="Histogram"/> and <seealso cref="Meter"/>
-        /// </summary>
-        /// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
-        /// <param name="unit">Description of what the is being measured ( Unit.Requests , Unit.Items etc ) .</param>
-        /// <param name="samplingType">Type of the sampling to use (see SamplingType for details ).</param>
-        /// <param name="rateUnit">Time unit for rates reporting. Defaults to Second ( occurrences / second ).</param>
-        /// <param name="durationUnit">Time unit for reporting durations. Defaults to Milliseconds. </param>
-        /// <param name="tags">Optional set of tags that can be associated with the metric.</param>
-        /// <returns>Reference to the metric</returns>
-        public static Timer Timer(string name, Unit unit, SamplingType samplingType = SamplingType.Default,
+		/// <summary>
+		/// Removes the specified Gauge from the MetricRegistry.
+		/// </summary>
+		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+		public static void DeregisterGauge(string name, MetricTags tags = default(MetricTags))
+		{
+			globalContext.DeregisterGauge(name, tags);
+		}
+
+		/// <summary>
+		/// Removes the specified Meter from the MetricRegistry.
+		/// </summary>
+		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+		public static void DeregisterMeter(string name, MetricTags tags = default(MetricTags))
+		{
+			globalContext.DeregisterMeter(name, tags);
+		}
+
+		/// <summary>
+		/// Removes the specified Counter from the MetricRegistry.
+		/// </summary>
+		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+		public static void DeregisterCounter(string name, MetricTags tags = default(MetricTags))
+		{
+			globalContext.DeregisterCounter(name, tags);
+		}
+
+		/// <summary>
+		/// Removes the specified Histogram from the MetricRegistry.
+		/// </summary>
+		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+		public static void DeregisterHistogram(string name, MetricTags tags = default(MetricTags))
+		{
+			globalContext.DeregisterHistogram(name, tags);
+		}
+
+		/// <summary>
+		/// Removes the specified Timer from the MetricRegistry.
+		/// </summary>
+		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+		public static void DeregisterTimer(string name, MetricTags tags = default(MetricTags))
+		{
+			globalContext.DeregisterTimer(name, tags);
+		}
+
+		/// <summary>
+		/// A timer is basically a histogram of the duration of a type of event and a meter of the rate of its occurrence.
+		/// <seealso cref="Histogram"/> and <seealso cref="Meter"/>
+		/// </summary>
+		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+		/// <param name="unit">Description of what the is being measured ( Unit.Requests , Unit.Items etc ) .</param>
+		/// <param name="samplingType">Type of the sampling to use (see SamplingType for details ).</param>
+		/// <param name="rateUnit">Time unit for rates reporting. Defaults to Second ( occurrences / second ).</param>
+		/// <param name="durationUnit">Time unit for reporting durations. Defaults to Milliseconds. </param>
+		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+		/// <returns>Reference to the metric</returns>
+		public static Timer Timer(string name, Unit unit, SamplingType samplingType = SamplingType.Default,
             TimeUnit rateUnit = TimeUnit.Seconds, TimeUnit durationUnit = TimeUnit.Milliseconds, MetricTags tags = default(MetricTags))
         {
             return globalContext.Timer(name, unit, samplingType, rateUnit, durationUnit, tags);

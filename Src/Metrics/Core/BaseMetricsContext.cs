@@ -210,5 +210,30 @@ namespace Metrics.Core
                 action(context);
             }
         }
-    }
+
+		public void DeregisterGauge(string name, MetricTags tags = default(MetricTags))
+		{
+			this.registry.DeregisterGauge(name, tags);
+		}
+
+		public void DeregisterMeter(string name, MetricTags tags = default(MetricTags))
+		{
+			this.registry.DeregisterMeter(name, tags);
+		}
+
+		public void DeregisterCounter(string name, MetricTags tags = default(MetricTags))
+		{
+			this.registry.DeregisterCounter(name, tags);
+		}
+
+		public void DeregisterHistogram(string name, MetricTags tags = default(MetricTags))
+		{
+			this.registry.DeregisterHistogram(name, tags);
+		}
+
+		public void DeregisterTimer(string name, MetricTags tags = default(MetricTags))
+		{
+			this.registry.DeregisterTimer(name, tags);
+		}
+	}
 }
