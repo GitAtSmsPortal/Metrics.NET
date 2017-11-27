@@ -87,51 +87,56 @@ namespace Metrics.Core
         public RegistryDataProvider DataProvider { get; }
 
         public void Gauge(string name, Func<MetricValueProvider<double>> valueProvider, Unit unit, MetricTags tags)
-        {
-            this.gauges.GetOrAdd(name, tags, () =>
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".gauge" : name;
+			this.gauges.GetOrAdd(name, tags, () =>
             {
                 MetricValueProvider<double> gauge = valueProvider();
-                return Tuple.Create(gauge, new GaugeValueSource(name, gauge, unit, tags));
+				return Tuple.Create(gauge, new GaugeValueSource(name, gauge, unit, tags));
             });
         }
 
         public Counter Counter<T>(string name, Func<T> builder, Unit unit, MetricTags tags)
             where T : CounterImplementation
-        {
-            return this.counters.GetOrAdd(name, tags, () =>
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".counter" : name;
+			return this.counters.GetOrAdd(name, tags, () =>
             {
                 T counter = builder();
-                return Tuple.Create((Counter)counter, new CounterValueSource(name, counter, unit, tags));
+				return Tuple.Create((Counter)counter, new CounterValueSource(name, counter, unit, tags));
             });
         }
 
         public Meter Meter<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, MetricTags tags)
             where T : MeterImplementation
-        {
-            return this.meters.GetOrAdd(name, tags, () =>
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".meter" : name;
+			return this.meters.GetOrAdd(name, tags, () =>
             {
                 T meter = builder();
-                return Tuple.Create((Meter)meter, new MeterValueSource(name, meter, unit, rateUnit, tags));
+				return Tuple.Create((Meter)meter, new MeterValueSource(name, meter, unit, rateUnit, tags));
             });
         }
 
         public Histogram Histogram<T>(string name, Func<T> builder, Unit unit, MetricTags tags)
             where T : HistogramImplementation
-        {
-            return this.histograms.GetOrAdd(name, tags, () =>
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".histogram" : name;
+			return this.histograms.GetOrAdd(name, tags, () =>
             {
                 T histogram = builder();
-                return Tuple.Create((Histogram)histogram, new HistogramValueSource(name, histogram, unit, tags));
+				return Tuple.Create((Histogram)histogram, new HistogramValueSource(name, histogram, unit, tags));
             });
         }
 
         public Timer Timer<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, TimeUnit durationUnit, MetricTags tags)
             where T : TimerImplementation
-        {
-            return this.timers.GetOrAdd(name, tags, () =>
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".timer" : name;
+			return this.timers.GetOrAdd(name, tags, () =>
             {
                 T timer = builder();
-                return Tuple.Create((Timer)timer, new TimerValueSource(name, timer, unit, rateUnit, durationUnit, tags));
+				return Tuple.Create((Timer)timer, new TimerValueSource(name, timer, unit, rateUnit, durationUnit, tags));
             });
         }
 

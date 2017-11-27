@@ -80,6 +80,26 @@ namespace Metrics
 		}
 
 		/// <summary>
+		/// True if the metric type should be included as part of the unique identifier of a metric i.e. the metric name; otherwise, false.
+		/// </summary>
+		public static bool UseMetricTypeIdentifiers { get; private set; }
+
+		/// <summary>
+		/// Include the metric type as part of the unique identifier of a metric i.e. the metric name.
+		/// </summary>
+		/// <returns>Chain-able configuration object.</returns>
+		public MetricsConfig WithMetricTypeIdentifiers()
+		{
+			if (this.isDisabled)
+			{
+				return this;
+			}
+
+			UseMetricTypeIdentifiers = true;
+			return this;
+		}
+
+		/// <summary>
 		/// Create HTTP endpoint where metrics will be available in various formats:
 		/// GET / => visualization application
 		/// GET /json => metrics serialized as JSON
