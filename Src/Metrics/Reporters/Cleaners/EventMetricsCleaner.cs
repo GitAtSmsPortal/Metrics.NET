@@ -14,8 +14,6 @@ namespace Metrics.Reporters.Cleaners
             /// The unique identifier for the event metric.
             /// </summary>
             public string EventMetricIdentifier { get; set; }
-            asjhdgashjgd
-            asdljkashd
 
             /// <summary>
             /// The total <c>EventDetail</c> items that have been reported for the event metric.

@@ -214,33 +214,39 @@ namespace Metrics.Core
         }
 
         public void DeregisterGauge(string name, MetricTags tags)
-        {
-            this.gauges.Remove(name, tags);
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".gauge" : name;
+			this.gauges.Remove(name, tags);
         }
 
         public void DeregisterMeter(string name, MetricTags tags)
-        {
-            this.meters.Remove(name, tags);
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".meter" : name;
+			this.meters.Remove(name, tags);
         }
 
         public void DeregisterCounter(string name, MetricTags tags)
-        {
-            this.counters.Remove(name, tags);
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".counter" : name;
+			this.counters.Remove(name, tags);
         }
 
         public void DeregisterHistogram(string name, MetricTags tags)
-        {
-            this.histograms.Remove(name, tags);
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".histogram" : name;
+			this.histograms.Remove(name, tags);
         }
 
         public void DeregisterTimer(string name, MetricTags tags)
-        {
-            this.timers.Remove(name, tags);
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".timer" : name;
+			this.timers.Remove(name, tags);
         }
 
         public void DeregisterEvent(string name, MetricTags tags)
-        {
-            this.events.Remove(name, tags);
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".event" : name;
+			this.events.Remove(name, tags);
         }
     }
 }
