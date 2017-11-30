@@ -126,5 +126,7 @@ namespace Metrics
         void DeregisterHistogram(string name, MetricTags tags = default(MetricTags));
 
         void DeregisterTimer(string name, MetricTags tags = default(MetricTags));
+
+        void DeregisterEvent(string name, MetricTags tags = default(MetricTags));
     }
 }

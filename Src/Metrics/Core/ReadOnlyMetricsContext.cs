@@ -26,6 +26,7 @@ namespace Metrics.Core
         public void DeregisterCounter(string name, MetricTags tags) { }
         public void DeregisterHistogram(string name, MetricTags tags) { }
         public void DeregisterTimer(string name, MetricTags tags) { }
+        public void DeregisterEvent(string name, MetricTags tags) { }
 
         public void Dispose()
         {
