@@ -85,12 +85,9 @@ namespace Metrics.Reporters.Cleaners
         {
             foreach (var eventCount in reportEventCounts)
             {
-                try
-                {
+                if (string.IsNullOrWhiteSpace(eventMetricIdentifier))
+                { 
                     eventCount.RemoveWhere(e => e.EventMetricIdentifier == eventMetricIdentifier);
-                }
-                catch
-                {
                 }
             }
         }
