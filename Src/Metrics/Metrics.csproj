@@ -183,6 +183,7 @@
     <Compile Include="Utils\IHideObjectMembers.cs" />
     <Compile Include="Utils\Scheduler.cs" />
     <Compile Include="Utils\TaskEx.cs" />
+    <Compile Include="Utils\ThreadingTimer.cs" />
     <Compile Include="Utils\TimeUnitExtensions.cs" />
     <Compile Include="Endpoints\AbstractMetricsEndpointHandler.cs" />
     <Compile Include="Endpoints\FlotWebApp.cs" />

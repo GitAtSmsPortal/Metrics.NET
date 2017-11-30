@@ -132,6 +132,36 @@ namespace Metrics.Json
         }
     }
 
+    public class StringKeyValuePairArrayJsonValue : JsonValue
+    {
+        private readonly IEnumerable<KeyValuePair<string, string>> values;
+
+        public StringKeyValuePairArrayJsonValue(IEnumerable<KeyValuePair<string, string>> values)
+        {
+            this.values = values;
+        }
+
+        public override string AsJson(bool indented = true, int indent = 0)
+        {
+            return "{" + string.Join(",", this.values.Select(v => new StringKeyValuePairJsonValue(v).AsJson(indented, indent))) + "}";
+        }
+    }
+
+    public class StringKeyValuePairJsonValue : JsonValue
+    {
+        private readonly KeyValuePair<string, string> value;
+
+        public StringKeyValuePairJsonValue(KeyValuePair<string, string> value)
+        {
+            this.value = value;
+        }
+
+        public override string AsJson(bool indented = true, int indent = 0)
+        {
+            return "\"" + Escape(this.value.Key) + "\"" + ":" + "\"" + Escape(this.value.Value) + "\"";
+        }
+    }
+
     public class JsonValueArray : JsonValue
     {
         private readonly IEnumerable<JsonValue> values;

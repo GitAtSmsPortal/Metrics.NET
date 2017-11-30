@@ -38,15 +38,16 @@ namespace Metrics.Json
             {
                 yield return new JsonProperty("Tags", this.Tags);
             }
+
+            yield return new JsonProperty("Unit", Metrics.Unit.None.Name);
         }
 
         private static IEnumerable<JsonProperty> ToJsonProperties(EventDetails item)
         {
             yield return new JsonProperty("Timestamp", item.Timestamp.ToString());
-            foreach (var kvp in item.Fields)
-            {
-                yield return new JsonProperty(kvp.Key, kvp.Value.ToString());
-            }
+
+            yield return new JsonProperty("Fields", item.Fields);
+
         }
 
         public EventValueSource ToValueSource()

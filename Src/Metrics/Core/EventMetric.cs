@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Metrics.MetricData;
 
 namespace Metrics.Core
@@ -35,21 +36,21 @@ namespace Metrics.Core
 
         public void Record(DateTime timestamp)
         {
-            Record(new List<KeyValuePair<string, object>>(), timestamp);
+            Record(new List<KeyValuePair<string, string>>(), timestamp);
         }
 
-        public void Record(List<KeyValuePair<string, object>> fields)
+        public void Record(List<KeyValuePair<string, string>> fields)
         {
             Record(fields, DateTime.UtcNow);
         }
 
-        public void Record(List<KeyValuePair<string, object>> fields, DateTime timestamp)
+        public void Record(List<KeyValuePair<string, string>> fields, DateTime timestamp)
         {
-            var defaultFields = new List<KeyValuePair<string, object>>();
-            defaultFields.Add(new KeyValuePair<string, object>("timestamp", timestamp));
+            var defaultFields = new List<KeyValuePair<string, string>>();
+            defaultFields.Add(new KeyValuePair<string, string>("timestamp", timestamp.ToString()));
 
             fields = fields.Count == 0 ? defaultFields : fields;
-            this.events.Add(new EventDetails(fields, timestamp));
+            this.events.Add(new EventDetails(fields.ToDictionary(k => k.Key, v => v.Value), timestamp));
         }
 
         public void Reset()
