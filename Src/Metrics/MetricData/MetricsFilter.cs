@@ -10,8 +10,9 @@ namespace Metrics.MetricData
         Counter,
         Meter,
         Histogram,
-        Timer
-    }
+		Timer,
+		Event
+	}
 
     public interface MetricsFilter : Utils.IHideObjectMembers
 	{
@@ -20,8 +21,9 @@ namespace Metrics.MetricData
         bool IsMatch(CounterValueSource counter);
         bool IsMatch(MeterValueSource meter);
         bool IsMatch(HistogramValueSource histogram);
-        bool IsMatch(TimerValueSource timer);
-    }
+		bool IsMatch(TimerValueSource timer);
+		bool IsMatch(EventValueSource evnt);
+	}
 
     public class Filter : MetricsFilter
 	{
@@ -36,8 +38,9 @@ namespace Metrics.MetricData
             public bool IsMatch(CounterValueSource counter) { return true; }
             public bool IsMatch(MeterValueSource meter) { return true; }
             public bool IsMatch(HistogramValueSource histogram) { return true; }
-            public bool IsMatch(TimerValueSource timer) { return true; }
-        }
+			public bool IsMatch(TimerValueSource timer) { return true; }
+			public bool IsMatch(EventValueSource evnt) { return true; }
+		}
 
         public static MetricsFilter All = new NoOpFilter();
 
@@ -128,18 +131,27 @@ namespace Metrics.MetricData
                 return false;
             }
             return IsNameMatch(histogram.Name);
-        }
+		}
 
-        public bool IsMatch(TimerValueSource timer)
-        {
-            if (types != null && !types.Contains(MetricType.Timer))
-            {
-                return false;
-            }
-            return IsNameMatch(timer.Name);
-        }
+		public bool IsMatch(TimerValueSource timer)
+		{
+			if (types != null && !types.Contains(MetricType.Timer))
+			{
+				return false;
+			}
+			return IsNameMatch(timer.Name);
+		}
 
-        private bool IsNameMatch(string name)
+		public bool IsMatch(EventValueSource evnt)
+		{
+			if (types != null && !types.Contains(MetricType.Event))
+			{
+				return false;
+			}
+			return IsNameMatch(evnt.Name);
+		}
+
+		private bool IsNameMatch(string name)
         {
 	        foreach (var predicate in names)
 			{

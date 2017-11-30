@@ -57,11 +57,11 @@ namespace Metrics
             return new MetricTags(tags);
 		}
 
-		public override int GetHashCode()
+		public static int GetHashCode(string[] tags)
 		{
 			const int prime = 31;
 			var hash = 17;
-			foreach (var tag in this.Tags)
+			foreach (var tag in tags)
 			{
 				if (!string.IsNullOrWhiteSpace(tag))
 				{

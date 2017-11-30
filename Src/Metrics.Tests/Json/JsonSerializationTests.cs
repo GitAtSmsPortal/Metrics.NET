@@ -47,15 +47,17 @@ namespace Metrics.Tests.Json
 
         private readonly HistogramValue histogramValue = new HistogramValue(1, 2, "3", 4, "5", 6, 7, "8", 9, 10, 11, 12, 13, 14, 15, 16);
 
-        private readonly TimerValue timerValue;
+		private readonly TimerValue timerValue;
+		private readonly EventValue eventValue;
 
-        private readonly GaugeValueSource gauge = new GaugeValueSource("test", Provider(0.5), Unit.MegaBytes, MetricTags.None);
+		private readonly GaugeValueSource gauge = new GaugeValueSource("test", Provider(0.5), Unit.MegaBytes, MetricTags.None);
         private readonly CounterValueSource counter;
         private readonly MeterValueSource meter;
         private readonly HistogramValueSource histogram;
-        private readonly TimerValueSource timer;
+		private readonly TimerValueSource timer;
+		private readonly EventValueSource evnt;
 
-        private readonly MetricsData data;
+		private readonly MetricsData data;
         private readonly JsonMetricsContext jsonContext;
 
         public JsonSerializationTests()
@@ -65,10 +67,11 @@ namespace Metrics.Tests.Json
             this.counter = new CounterValueSource("test1", Provider(counterValue), Unit.Errors, MetricTags.None);
             this.meter = new MeterValueSource("test2", Provider(meterValue), Unit.Calls, TimeUnit.Seconds, MetricTags.None);
             this.histogram = new HistogramValueSource("test3", Provider(histogramValue), Unit.Items, MetricTags.None);
-            this.timer = new TimerValueSource("test4", Provider(timerValue), Unit.Requests, TimeUnit.Seconds, TimeUnit.Milliseconds, MetricTags.None);
+			this.timer = new TimerValueSource("test4", Provider(timerValue), Unit.Requests, TimeUnit.Seconds, TimeUnit.Milliseconds, MetricTags.None);
+			this.evnt = new EventValueSource("test5", Provider(eventValue), MetricTags.None);
 
-            this.data = new MetricsData("test", new DateTime(2014, 2, 17), new[] { new EnvironmentEntry("name", "1") },
-                new[] { gauge }, new[] { counter }, new[] { meter }, new[] { histogram }, new[] { timer },
+			this.data = new MetricsData("test", new DateTime(2014, 2, 17), new[] { new EnvironmentEntry("name", "1") },
+                new[] { gauge }, new[] { counter }, new[] { meter }, new[] { histogram }, new[] { timer }, new[] { evnt },
                     Enumerable.Empty<MetricsData>()
             );
             this.jsonContext = JsonMetricsContext.FromContext(this.data, "1");

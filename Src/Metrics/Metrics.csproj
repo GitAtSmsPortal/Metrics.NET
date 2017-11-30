@@ -85,7 +85,10 @@
     <Compile Include="Core\DefaultMetricsRegistry.cs" />
     <Compile Include="Core\DefaultDataProvider.cs" />
     <Compile Include="Core\DefaultRegistryDataProvider.cs" />
+    <Compile Include="Core\EventMetric.cs" />
     <Compile Include="Core\SimpleMeter.cs" />
+    <Compile Include="Event.cs" />
+    <Compile Include="Json\JsonEvent.cs" />
     <Compile Include="Json\JsonMetric.cs" />
     <Compile Include="Json\JsonMetricsContext.cs" />
     <Compile Include="Json\JsonTimer.cs" />
@@ -98,6 +101,8 @@
     <Compile Include="MetricData\ConstantValue.cs" />
     <Compile Include="MetricData\CounterValue.cs" />
     <Compile Include="MetricData\EnvironmentEntry.cs" />
+    <Compile Include="MetricData\EventDetails.cs" />
+    <Compile Include="MetricData\EventValue.cs" />
     <Compile Include="MetricData\GaugeValue.cs" />
     <Compile Include="MetricData\HistogramValue.cs" />
     <Compile Include="MetricData\MeterValue.cs" />
@@ -108,6 +113,7 @@
     <Compile Include="RemoteMetrics\HttpRemoteMetrics.cs" />
     <Compile Include="RemoteMetrics\RemoteMetricsExtensions.cs" />
     <Compile Include="RemoteMetrics\RemoteMetricsContext.cs" />
+    <Compile Include="Reporters\Cleaners\EventMetricsCleaner.cs" />
     <Compile Include="Reporters\MetricsReport.cs" />
     <Compile Include="Reporters\MetricsEndpointReports.cs" />
     <Compile Include="Reporters\EndpointReporterConfig.cs" />

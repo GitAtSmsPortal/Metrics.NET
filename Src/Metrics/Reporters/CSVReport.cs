@@ -3,6 +3,7 @@ using Metrics.MetricData;
 using Metrics.Utils;
 using System.Collections.Generic;
 using System.Linq;
+
 namespace Metrics.Reporters
 {
     public class CSVReport : BaseReport
@@ -69,9 +70,14 @@ namespace Metrics.Reporters
                 });
 
             Write("Timer", name, values);
-        }
+		}
 
-        protected override void ReportHealth(HealthStatus status)
+		protected override void ReportEvent(string name, EventValue value, MetricTags tags)
+		{
+			Write("Event", name, EventValues(value.EventsCopy));
+		}
+
+		protected override void ReportHealth(HealthStatus status)
         {
             Write("All", "HealthChecks", new[] {
                 new Value("All Healthy", status.IsHealthy) }.Union(
@@ -144,9 +150,21 @@ namespace Metrics.Reporters
                     yield return new Value("Unit", unit.Name);
                 }
             }
-        }
+		}
 
-        private void Write(string metricType, string metricName, IEnumerable<Value> values)
+		private static IEnumerable<Value> EventValues(List<EventDetails> events)
+		{
+			foreach (var evnt in events)
+			{
+				yield return new Value("Timestamp", evnt.Timestamp.ToString());
+				foreach (var kvp in evnt.Fields)
+				{
+					yield return new Value(kvp.Key, kvp.Value.ToString());
+				}
+			}
+		}
+
+		private void Write(string metricType, string metricName, IEnumerable<Value> values)
         {
             this.appender.AppendLine(CurrentContextTimestamp, metricType, metricName, values);
         }

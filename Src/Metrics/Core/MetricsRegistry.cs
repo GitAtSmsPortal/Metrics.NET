@@ -10,8 +10,9 @@ namespace Metrics.Core
         IEnumerable<CounterValueSource> Counters { get; }
         IEnumerable<MeterValueSource> Meters { get; }
         IEnumerable<HistogramValueSource> Histograms { get; }
-        IEnumerable<TimerValueSource> Timers { get; }
-    }
+		IEnumerable<TimerValueSource> Timers { get; }
+		IEnumerable<EventValueSource> Events { get; }
+	}
 
     public interface MetricsRegistry
     {
@@ -31,9 +32,14 @@ namespace Metrics.Core
         Timer Timer<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, TimeUnit durationUnit, MetricTags tags)
             where T : TimerImplementation;
 
-        void ClearAllMetrics();
+		Event Event<T>(string name, Func<T> builder, MetricTags tags)
+			where T : EventImplementation;
+
+		void ClearAllMetrics();
 
         void ResetMetricsValues();
+
+	    void EventValuesRemoveRange(string key, int startIndex, int count);
 
 		void DeregisterGauge(string name, MetricTags tags);
 
@@ -44,5 +50,7 @@ namespace Metrics.Core
 		void DeregisterHistogram(string name, MetricTags tags);
 
 		void DeregisterTimer(string name, MetricTags tags);
+
+		void DeregisterEvent(string name, MetricTags tags);
 	}
 }

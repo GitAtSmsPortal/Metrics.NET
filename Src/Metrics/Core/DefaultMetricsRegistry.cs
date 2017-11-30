@@ -7,13 +7,15 @@ using System.Linq;
 namespace Metrics.Core
 {
     public sealed class DefaultMetricsRegistry : MetricsRegistry
-    {
-        private class MetricMetaCatalog<TMetric, TValue, TMetricValue>
+	{
+		private class MetricMetaCatalog<TMetric, TValue, TMetricValue>
             where TValue : MetricValueSource<TMetricValue>
-        {
-            public class MetricMeta
+		{
+			private readonly object locker = new object();
+
+			private class MetricMeta
             {
-                public MetricMeta(TMetric metric, TValue valueUnit)
+				public MetricMeta(TMetric metric, TValue valueUnit)
                 {
                     this.Metric = metric;
                     this.Value = valueUnit;
@@ -31,60 +33,100 @@ namespace Metrics.Core
             {
                 get
                 {
-                    return this.metrics.Values.OrderBy(m => m.Name).Select(v => v.Value);
+	                List<MetricMeta> valuesCopy;
+					lock (this.locker)
+					{
+						valuesCopy = new List<MetricMeta>(this.metrics.Values);
+					}
+					return valuesCopy.OrderBy(m => m.Name).Select(v => v.Value);
                 }
-            }
+			}
 
-            public TMetric GetOrAdd(string name, MetricTags tags, Func<Tuple<TMetric, TValue>> metricProvider)
+			public TMetric GetOrAdd(string name, MetricTags tags, Func<Tuple<TMetric, TValue>> metricProvider)
 			{
-				var key = MetricsConfig.UseTagIdentifiers ? name + tags.GetHashCode() : name;
+				var key = MetricsConfig.UseTagIdentifiers ? name + MetricTags.GetHashCode(tags.Tags) : name;
 				return this.metrics.GetOrAdd(key, n =>
-                {
-                    var result = metricProvider();
-                    return new MetricMeta(result.Item1, result.Item2);
-                }).Metric;
-            }
+				{
+					var result = metricProvider();
+					return new MetricMeta(result.Item1, result.Item2);
+				}).Metric;
+			}
 
-            public void Clear()
-            {
-                var values = this.metrics.Values;
-                this.metrics.Clear();
-                foreach (var value in values)
-                {
-                    using (value.Metric as IDisposable) { }
-                }
-            }
-
-            public void Reset()
-            {
-                foreach (var metric in this.metrics.Values)
-                {
-                    var resetable = metric.Metric as ResetableMetric;
-                    resetable?.Reset();
-                }
-            }
-
-	        public void Remove(string name, MetricTags tags)
+			public void Clear()
 			{
-				var key = MetricsConfig.UseTagIdentifiers ? name + tags.GetHashCode() : name;
+				lock (this.locker)
+				{
+					var values = this.metrics.Values;
+					this.metrics.Clear();
+					foreach (var value in values)
+					{
+						using (value.Metric as IDisposable)
+						{
+						}
+					}
+				}
+			}
+
+			public void EventValuesRemoveRange(string key, int startIndex, int count)
+			{
+				lock (this.locker)
+				{
+					MetricMeta metricMeta;
+					if (this.metrics.TryGetValue(key, out metricMeta))
+					{
+						var src = metricMeta.Value as EventValueSource;
+						if (src != null)
+						{
+							src.Value.Events.RemoveRange(startIndex, count);
+						}
+					}
+				}
+			}
+
+			public void Reset()
+			{
+				lock (this.locker)
+				{
+					foreach (var metric in this.metrics.Values)
+					{
+						var resetable = metric.Metric as ResetableMetric;
+						resetable?.Reset();
+					}
+				}
+			}
+
+			public void Remove(string name, MetricTags tags)
+			{
+				var key = MetricsConfig.UseTagIdentifiers ? name + MetricTags.GetHashCode(tags.Tags) : name;
 				MetricMeta m;
-		        this.metrics.TryRemove(key, out m);
-	        }
-        }
+				this.metrics.TryRemove(key, out m);
+			}
+		}
 
         private readonly MetricMetaCatalog<MetricValueProvider<double>, GaugeValueSource, double> gauges = new MetricMetaCatalog<MetricValueProvider<double>, GaugeValueSource, double>();
         private readonly MetricMetaCatalog<Counter, CounterValueSource, CounterValue> counters = new MetricMetaCatalog<Counter, CounterValueSource, CounterValue>();
         private readonly MetricMetaCatalog<Meter, MeterValueSource, MeterValue> meters = new MetricMetaCatalog<Meter, MeterValueSource, MeterValue>();
-        private readonly MetricMetaCatalog<Histogram, HistogramValueSource, HistogramValue> histograms =
-            new MetricMetaCatalog<Histogram, HistogramValueSource, HistogramValue>();
+        private readonly MetricMetaCatalog<Histogram, HistogramValueSource, HistogramValue> histograms = new MetricMetaCatalog<Histogram, HistogramValueSource, HistogramValue>();
         private readonly MetricMetaCatalog<Timer, TimerValueSource, TimerValue> timers = new MetricMetaCatalog<Timer, TimerValueSource, TimerValue>();
-
-        public DefaultMetricsRegistry()
+		private readonly MetricMetaCatalog<Event, EventValueSource, EventValue> events = new MetricMetaCatalog<Event, EventValueSource, EventValue>();
+		
+		public DefaultMetricsRegistry()
         {
-            this.DataProvider = new DefaultRegistryDataProvider(() => this.gauges.All, () => this.counters.All, () => this.meters.All, () => this.histograms.All, () => this.timers.All);
+            this.DataProvider = new DefaultRegistryDataProvider(
+				() => this.gauges.All, 
+				() => this.counters.All, 
+				() => this.meters.All, 
+				() => this.histograms.All, 
+				() => this.timers.All,
+				() => this.events.All);
         }
 
-        public RegistryDataProvider DataProvider { get; }
+	    public void EventValuesRemoveRange(string key, int startIndex, int count)
+		{
+			events.EventValuesRemoveRange(key, startIndex, count);
+		}
+
+	    public RegistryDataProvider DataProvider { get; }
 
         public void Gauge(string name, Func<MetricValueProvider<double>> valueProvider, Unit unit, MetricTags tags)
 		{
@@ -127,26 +169,38 @@ namespace Metrics.Core
                 T histogram = builder();
 				return Tuple.Create((Histogram)histogram, new HistogramValueSource(name, histogram, unit, tags));
             });
-        }
+		}
 
-        public Timer Timer<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, TimeUnit durationUnit, MetricTags tags)
-            where T : TimerImplementation
+		public Timer Timer<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, TimeUnit durationUnit, MetricTags tags)
+			where T : TimerImplementation
 		{
 			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".timer" : name;
 			return this.timers.GetOrAdd(name, tags, () =>
-            {
-                T timer = builder();
+			{
+				T timer = builder();
 				return Tuple.Create((Timer)timer, new TimerValueSource(name, timer, unit, rateUnit, durationUnit, tags));
-            });
-        }
+			});
+		}
 
-        public void ClearAllMetrics()
+		public Event Event<T>(string name, Func<T> builder, MetricTags tags)
+			where T : EventImplementation
+		{
+			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".event" : name;
+			return this.events.GetOrAdd(name, tags, () =>
+			{
+				T evnt = builder();
+				return Tuple.Create((Event)evnt, new EventValueSource(name, evnt, tags));
+			});
+		}
+
+		public void ClearAllMetrics()
         {
             this.gauges.Clear();
             this.counters.Clear();
             this.meters.Clear();
             this.histograms.Clear();
-            this.timers.Clear();
+			this.timers.Clear();
+			this.events.Clear();
 		}
 
 		public void ResetMetricsValues()
@@ -156,6 +210,7 @@ namespace Metrics.Core
 			this.meters.Reset();
 			this.histograms.Reset();
 			this.timers.Reset();
+			this.events.Reset();
 		}
 
 		public void DeregisterGauge(string name, MetricTags tags)
@@ -181,6 +236,11 @@ namespace Metrics.Core
 		public void DeregisterTimer(string name, MetricTags tags)
 		{
 			this.timers.Remove(name, tags);
+		}
+
+		public void DeregisterEvent(string name, MetricTags tags)
+		{
+			this.events.Remove(name, tags);
 		}
 	}
 }
