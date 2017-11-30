@@ -117,14 +117,14 @@ namespace Metrics
             TimeUnit durationUnit = TimeUnit.Milliseconds,
             MetricTags tags = default(MetricTags));
 
-	    void DeregisterGauge(string name, MetricTags tags = default(MetricTags));
+        void DeregisterGauge(string name, MetricTags tags = default(MetricTags));
 
-		void DeregisterMeter(string name, MetricTags tags = default(MetricTags));
+        void DeregisterMeter(string name, MetricTags tags = default(MetricTags));
 
-		void DeregisterCounter(string name, MetricTags tags = default(MetricTags));
+        void DeregisterCounter(string name, MetricTags tags = default(MetricTags));
 
-		void DeregisterHistogram(string name, MetricTags tags = default(MetricTags));
+        void DeregisterHistogram(string name, MetricTags tags = default(MetricTags));
 
-		void DeregisterTimer(string name, MetricTags tags = default(MetricTags));
-	}
+        void DeregisterTimer(string name, MetricTags tags = default(MetricTags));
+    }
 }

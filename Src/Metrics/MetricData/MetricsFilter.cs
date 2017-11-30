@@ -10,37 +10,37 @@ namespace Metrics.MetricData
         Counter,
         Meter,
         Histogram,
-		Timer,
-		Event
-	}
+        Timer,
+        Event
+    }
 
     public interface MetricsFilter : Utils.IHideObjectMembers
-	{
-		bool IsMatch(string context);
-		bool IsMatch(GaugeValueSource gauge);
+    {
+        bool IsMatch(string context);
+        bool IsMatch(GaugeValueSource gauge);
         bool IsMatch(CounterValueSource counter);
         bool IsMatch(MeterValueSource meter);
         bool IsMatch(HistogramValueSource histogram);
-		bool IsMatch(TimerValueSource timer);
-		bool IsMatch(EventValueSource evnt);
-	}
+        bool IsMatch(TimerValueSource timer);
+        bool IsMatch(EventValueSource evnt);
+    }
 
     public class Filter : MetricsFilter
-	{
-		private Predicate<string> context;
-		private readonly List<Predicate<string>> names = new List<Predicate<string>>();
+    {
+        private Predicate<string> context;
+        private readonly List<Predicate<string>> names = new List<Predicate<string>>();
         private HashSet<MetricType> types;
 
         private class NoOpFilter : MetricsFilter
-		{
-			public bool IsMatch(string context) { return true; }
-			public bool IsMatch(GaugeValueSource gauge) { return true; }
+        {
+            public bool IsMatch(string context) { return true; }
+            public bool IsMatch(GaugeValueSource gauge) { return true; }
             public bool IsMatch(CounterValueSource counter) { return true; }
             public bool IsMatch(MeterValueSource meter) { return true; }
             public bool IsMatch(HistogramValueSource histogram) { return true; }
-			public bool IsMatch(TimerValueSource timer) { return true; }
-			public bool IsMatch(EventValueSource evnt) { return true; }
-		}
+            public bool IsMatch(TimerValueSource timer) { return true; }
+            public bool IsMatch(EventValueSource evnt) { return true; }
+        }
 
         public static MetricsFilter All = new NoOpFilter();
 
@@ -48,56 +48,56 @@ namespace Metrics.MetricData
 
         public static Filter New
         {
-			get
-			{
-				return new Filter();
-			}
-		}
+            get
+            {
+                return new Filter();
+            }
+        }
 
-		public Filter WhereContext(Predicate<string> condition)
-		{
-			this.context = condition;
-			return this;
-		}
+        public Filter WhereContext(Predicate<string> condition)
+        {
+            this.context = condition;
+            return this;
+        }
 
         public Filter WhereContext(string context)
         {
             return WhereContext(c => c.Equals(context, StringComparison.OrdinalIgnoreCase));
         }
 
-		public Filter WhereName(Predicate<string> condition)
-		{
-			this.names.Add(condition);
-			return this;
-		}
+        public Filter WhereName(Predicate<string> condition)
+        {
+            this.names.Add(condition);
+            return this;
+        }
 
-		public Filter WhereNameStartsWith(string name)
-		{
-			return WhereName(n => n.StartsWith(name, StringComparison.OrdinalIgnoreCase));
-		}
+        public Filter WhereNameStartsWith(string name)
+        {
+            return WhereName(n => n.StartsWith(name, StringComparison.OrdinalIgnoreCase));
+        }
 
-		public Filter WhereNameNotStartsWith(string name)
-		{
-			return WhereName(n => !n.StartsWith(name, StringComparison.OrdinalIgnoreCase));
-		}
+        public Filter WhereNameNotStartsWith(string name)
+        {
+            return WhereName(n => !n.StartsWith(name, StringComparison.OrdinalIgnoreCase));
+        }
 
-		public Filter WhereType(params MetricType[] types)
+        public Filter WhereType(params MetricType[] types)
         {
             this.types = new HashSet<MetricType>(types);
             return this;
-		}
+        }
 
-		public bool IsMatch(string context)
-		{
-			if (this.context != null && !this.context(context))
-			{
-				return false;
-			}
+        public bool IsMatch(string context)
+        {
+            if (this.context != null && !this.context(context))
+            {
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		public bool IsMatch(GaugeValueSource gauge)
+        public bool IsMatch(GaugeValueSource gauge)
         {
             if (types != null && !types.Contains(MetricType.Gauge))
             {
@@ -131,37 +131,37 @@ namespace Metrics.MetricData
                 return false;
             }
             return IsNameMatch(histogram.Name);
-		}
+        }
 
-		public bool IsMatch(TimerValueSource timer)
-		{
-			if (types != null && !types.Contains(MetricType.Timer))
-			{
-				return false;
-			}
-			return IsNameMatch(timer.Name);
-		}
-
-		public bool IsMatch(EventValueSource evnt)
-		{
-			if (types != null && !types.Contains(MetricType.Event))
-			{
-				return false;
-			}
-			return IsNameMatch(evnt.Name);
-		}
-
-		private bool IsNameMatch(string name)
+        public bool IsMatch(TimerValueSource timer)
         {
-	        foreach (var predicate in names)
-			{
-				if (predicate != null && !predicate(name))
-				{
-					return false;
-				}
-			}
+            if (types != null && !types.Contains(MetricType.Timer))
+            {
+                return false;
+            }
+            return IsNameMatch(timer.Name);
+        }
 
-			return true;
-		}
+        public bool IsMatch(EventValueSource evnt)
+        {
+            if (types != null && !types.Contains(MetricType.Event))
+            {
+                return false;
+            }
+            return IsNameMatch(evnt.Name);
+        }
+
+        private bool IsNameMatch(string name)
+        {
+            foreach (var predicate in names)
+            {
+                if (predicate != null && !predicate(name))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

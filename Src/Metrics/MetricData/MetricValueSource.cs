@@ -59,23 +59,23 @@ namespace Metrics.MetricData
     /// </summary>
     /// <typeparam name="T">Type of the metric value</typeparam>
     public abstract class MetricValueSource<T> : Utils.IHideObjectMembers
-	{
-		protected MetricValueSource(string name, MetricValueProvider<T> valueProvider, Unit unit, MetricTags tags)
-		{
-			this.Name = name;
-			this.Unit = unit;
-			this.ValueProvider = valueProvider;
-			this.Tags = tags.Tags;
-		}
+    {
+        protected MetricValueSource(string name, MetricValueProvider<T> valueProvider, Unit unit, MetricTags tags)
+        {
+            this.Name = name;
+            this.Unit = unit;
+            this.ValueProvider = valueProvider;
+            this.Tags = tags.Tags;
+        }
 
-		protected MetricValueSource(string name, MetricValueProvider<T> valueProvider, MetricTags tags): this(name, valueProvider, Metrics.Unit.None, tags)
-		{
-		}
+        protected MetricValueSource(string name, MetricValueProvider<T> valueProvider, MetricTags tags): this(name, valueProvider, Metrics.Unit.None, tags)
+        {
+        }
 
-		/// <summary>
-		/// Name of the metric.
-		/// </summary>
-		public string Name { get; private set; }
+        /// <summary>
+        /// Name of the metric.
+        /// </summary>
+        public string Name { get; private set; }
 
         /// <summary>
         /// The current value of the metric.

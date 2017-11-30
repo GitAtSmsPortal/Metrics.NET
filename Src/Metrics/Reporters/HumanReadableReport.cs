@@ -88,22 +88,22 @@ namespace Metrics.Reporters
             this.WriteValue("Total Time", unit.FormatDuration(value.TotalTime, durationUnit));
             this.WriteMeter(value.Rate, unit, rateUnit);
             this.WriteHistogram(value.Histogram, unit, durationUnit);
-		}
+        }
 
-		protected override void ReportEvent(string name, EventValue value, MetricTags tags)
-		{
-			this.WriteMetricName(name);
-			foreach (var evnt in value.EventsCopy)
-			{
-				this.WriteValue("Timestamp", evnt.Timestamp.ToString());
-				foreach (var kvp in evnt.Fields)
-				{
-					this.WriteValue(kvp.Key, kvp.Value.ToString());
-				}
-			}
-		}
+        protected override void ReportEvent(string name, EventValue value, MetricTags tags)
+        {
+            this.WriteMetricName(name);
+            foreach (var evnt in value.EventsCopy)
+            {
+                this.WriteValue("Timestamp", evnt.Timestamp.ToString());
+                foreach (var kvp in evnt.Fields)
+                {
+                    this.WriteValue(kvp.Key, kvp.Value.ToString());
+                }
+            }
+        }
 
-		protected override void ReportHealth(HealthStatus status)
+        protected override void ReportHealth(HealthStatus status)
         {
             WriteLine();
             WriteValue("Is Healthy", status.IsHealthy ? "Yes" : "No");

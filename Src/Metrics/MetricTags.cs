@@ -55,20 +55,20 @@ namespace Metrics
         public static implicit operator MetricTags(string[] tags)
         {
             return new MetricTags(tags);
-		}
+        }
 
-		public static int GetHashCode(string[] tags)
-		{
-			const int prime = 31;
-			var hash = 17;
-			foreach (var tag in tags)
-			{
-				if (!string.IsNullOrWhiteSpace(tag))
-				{
-					hash = (hash*prime) + tag.GetHashCode();
-				}
-			}
-			return hash;
-		}
-	}
+        public static int GetHashCode(string[] tags)
+        {
+            const int prime = 31;
+            var hash = 17;
+            foreach (var tag in tags)
+            {
+                if (!string.IsNullOrWhiteSpace(tag))
+                {
+                    hash = (hash*prime) + tag.GetHashCode();
+                }
+            }
+            return hash;
+        }
+    }
 }

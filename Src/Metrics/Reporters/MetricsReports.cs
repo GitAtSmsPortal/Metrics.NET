@@ -25,8 +25,8 @@ namespace Metrics.Reports
         /// </summary>
         /// <param name="report">Function that returns an instance of a reporter</param>
         /// <param name="interval">Interval at which to run the report.</param>
-		/// <param name="filter">Only report metrics that match the filter.</param> 
-		public MetricsReports WithReport(MetricsReport report, TimeSpan interval, MetricsFilter filter = null)
+        /// <param name="filter">Only report metrics that match the filter.</param> 
+        public MetricsReports WithReport(MetricsReport report, TimeSpan interval, MetricsFilter filter = null)
         {
             var toleratedConsecutiveFailures = ReadToleratedFailuresConfig();
             var newReport = new ScheduledReporter(report, this.metricsDataProvider.WithFilter(filter), this.healthStatus, interval, new ActionScheduler(toleratedConsecutiveFailures));
@@ -38,8 +38,8 @@ namespace Metrics.Reports
         /// Schedule a Console Report to be executed and displayed on the console at a fixed <paramref name="interval"/>.
         /// </summary>
         /// <param name="interval">Interval at which to display the report on the Console.</param>
-		/// <param name="filter">Only report metrics that match the filter.</param> 
-		public MetricsReports WithConsoleReport(TimeSpan interval, MetricsFilter filter = null)
+        /// <param name="filter">Only report metrics that match the filter.</param> 
+        public MetricsReports WithConsoleReport(TimeSpan interval, MetricsFilter filter = null)
         {
             return WithReport(new ConsoleReport(), interval, filter);
         }
@@ -50,8 +50,8 @@ namespace Metrics.Reports
         /// <param name="directory">Directory where to store the CSV files.</param>
         /// <param name="interval">Interval at which to append a line to the files.</param>
         /// <param name="delimiter">CSV delimiter to use</param>
-		/// <param name="filter">Only report metrics that match the filter.</param> 
-		public MetricsReports WithCSVReports(string directory, TimeSpan interval, MetricsFilter filter = null, string delimiter = CSVAppender.CommaDelimiter)
+        /// <param name="filter">Only report metrics that match the filter.</param> 
+        public MetricsReports WithCSVReports(string directory, TimeSpan interval, MetricsFilter filter = null, string delimiter = CSVAppender.CommaDelimiter)
         {
             return WithReport(new CSVReport(new CSVFileAppender(directory, delimiter)), interval, filter);
         }
@@ -61,8 +61,8 @@ namespace Metrics.Reports
         /// </summary>
         /// <param name="filePath">File where to append the report.</param>
         /// <param name="interval">Interval at which to run the report.</param>
-		/// <param name="filter">Only report metrics that match the filter.</param> 
-		public MetricsReports WithTextFileReport(string filePath, TimeSpan interval, MetricsFilter filter = null)
+        /// <param name="filter">Only report metrics that match the filter.</param> 
+        public MetricsReports WithTextFileReport(string filePath, TimeSpan interval, MetricsFilter filter = null)
         {
             return WithReport(new TextFileReport(filePath), interval, filter);
         }

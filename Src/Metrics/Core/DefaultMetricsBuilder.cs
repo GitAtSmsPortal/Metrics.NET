@@ -50,11 +50,11 @@ namespace Metrics.Core
         public TimerImplementation BuildTimer(string name, Unit unit, TimeUnit rateUnit, TimeUnit durationUnit, Reservoir reservoir)
         {
             return new TimerMetric(reservoir);
-		}
+        }
 
-		public EventImplementation BuildEvent(string name)
-		{
-			return new EventMetric();
-		}
-	}
+        public EventImplementation BuildEvent(string name)
+        {
+            return new EventMetric();
+        }
+    }
 }

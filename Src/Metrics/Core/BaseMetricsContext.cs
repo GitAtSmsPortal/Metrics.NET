@@ -19,8 +19,8 @@ namespace Metrics.Core
         protected BaseMetricsContext(string context, MetricsRegistry registry, MetricsBuilder metricsBuilder, Func<DateTime> timestampProvider)
         {
             this.registry = registry;
-	        EventMetricsCleaner.Registry = registry;
-			this.metricsBuilder = metricsBuilder;
+            EventMetricsCleaner.Registry = registry;
+            this.metricsBuilder = metricsBuilder;
             this.DataProvider = new DefaultDataProvider(context, timestampProvider, this.registry.DataProvider, () => this.childContexts.Values.Select(c => c.DataProvider));
         }
 
@@ -154,20 +154,20 @@ namespace Metrics.Core
         public Timer Timer(string name, Unit unit, Func<Reservoir> builder, TimeUnit rateUnit, TimeUnit durationUnit, MetricTags tags)
         {
             return this.Timer(name, unit, () => this.metricsBuilder.BuildTimer(name, unit, rateUnit, durationUnit, builder()), rateUnit, durationUnit, tags);
-		}
+        }
 
-		public Event Event(string name, MetricTags tags)
-		{
-			return this.Event(name, () => this.metricsBuilder.BuildEvent(name), tags);
-		}
+        public Event Event(string name, MetricTags tags)
+        {
+            return this.Event(name, () => this.metricsBuilder.BuildEvent(name), tags);
+        }
 
-		public Event Event<T>(string name, Func<T> builder, MetricTags tags)
-			where T : EventImplementation
-		{
-			return this.registry.Event(name, builder, tags);
-		}
+        public Event Event<T>(string name, Func<T> builder, MetricTags tags)
+            where T : EventImplementation
+        {
+            return this.registry.Event(name, builder, tags);
+        }
 
-		public void CompletelyDisableMetrics()
+        public void CompletelyDisableMetrics()
         {
             if (this.isDisabled)
             {
@@ -224,34 +224,34 @@ namespace Metrics.Core
             }
         }
 
-		public void DeregisterGauge(string name, MetricTags tags = default(MetricTags))
-		{
-			this.registry.DeregisterGauge(name, tags);
-		}
+        public void DeregisterGauge(string name, MetricTags tags = default(MetricTags))
+        {
+            this.registry.DeregisterGauge(name, tags);
+        }
 
-		public void DeregisterMeter(string name, MetricTags tags = default(MetricTags))
-		{
-			this.registry.DeregisterMeter(name, tags);
-		}
+        public void DeregisterMeter(string name, MetricTags tags = default(MetricTags))
+        {
+            this.registry.DeregisterMeter(name, tags);
+        }
 
-		public void DeregisterCounter(string name, MetricTags tags = default(MetricTags))
-		{
-			this.registry.DeregisterCounter(name, tags);
-		}
+        public void DeregisterCounter(string name, MetricTags tags = default(MetricTags))
+        {
+            this.registry.DeregisterCounter(name, tags);
+        }
 
-		public void DeregisterHistogram(string name, MetricTags tags = default(MetricTags))
-		{
-			this.registry.DeregisterHistogram(name, tags);
-		}
+        public void DeregisterHistogram(string name, MetricTags tags = default(MetricTags))
+        {
+            this.registry.DeregisterHistogram(name, tags);
+        }
 
-		public void DeregisterTimer(string name, MetricTags tags = default(MetricTags))
-		{
-			this.registry.DeregisterTimer(name, tags);
-		}
+        public void DeregisterTimer(string name, MetricTags tags = default(MetricTags))
+        {
+            this.registry.DeregisterTimer(name, tags);
+        }
 
-		public void DeregisterEvent(string name, MetricTags tags = default(MetricTags))
-		{
-			this.registry.DeregisterEvent(name, tags);
-		}
-	}
+        public void DeregisterEvent(string name, MetricTags tags = default(MetricTags))
+        {
+            this.registry.DeregisterEvent(name, tags);
+        }
+    }
 }
