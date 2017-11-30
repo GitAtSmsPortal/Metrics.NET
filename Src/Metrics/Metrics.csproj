@@ -86,6 +86,7 @@
     <Compile Include="Core\DefaultDataProvider.cs" />
     <Compile Include="Core\DefaultRegistryDataProvider.cs" />
     <Compile Include="Core\EventMetric.cs" />
+    <Compile Include="Core\MetricIdentifier.cs" />
     <Compile Include="Core\SimpleMeter.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Json\JsonEvent.cs" />

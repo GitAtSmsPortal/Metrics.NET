@@ -61,7 +61,7 @@ namespace Metrics.Reporters.Cleaners
                 foreach (var evntSrc in events)
                 {
                     var count = evntSrc.Value.EventsCopy.Count;
-                    var eventMetricId = MetricsConfig.UseTagIdentifiers ? evntSrc.Name + MetricTags.GetHashCode(evntSrc.Tags) : evntSrc.Name;
+                    var eventMetricId = MetricIdentifier.Calculate(evntSrc.Name, evntSrc.Tags);
                     var report = reportEventCounts[reportIdentifier];
 
                     var eventCount = report.FirstOrDefault(e => e.EventMetricIdentifier == eventMetricId);

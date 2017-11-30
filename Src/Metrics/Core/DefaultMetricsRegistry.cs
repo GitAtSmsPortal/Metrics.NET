@@ -44,7 +44,7 @@ namespace Metrics.Core
 
             public TMetric GetOrAdd(string name, MetricTags tags, Func<Tuple<TMetric, TValue>> metricProvider)
             {
-                var key = MetricsConfig.UseTagIdentifiers ? name + MetricTags.GetHashCode(tags.Tags) : name;
+                var key = MetricIdentifier.Calculate(name, tags.Tags);
                 return this.metrics.GetOrAdd(key, n =>
                 {
                     var result = metricProvider();
@@ -97,7 +97,7 @@ namespace Metrics.Core
 
             public void Remove(string name, MetricTags tags)
             {
-                var key = MetricsConfig.UseTagIdentifiers ? name + MetricTags.GetHashCode(tags.Tags) : name;
+                var key = MetricIdentifier.Calculate(name, tags.Tags);
                 MetricMeta m;
                 this.metrics.TryRemove(key, out m);
             }
