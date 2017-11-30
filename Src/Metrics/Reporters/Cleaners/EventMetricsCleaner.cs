@@ -81,6 +81,20 @@ namespace Metrics.Reporters.Cleaners
             }
         }
 
+        public static void RemoveEvent(string eventMetricIdentifier)
+        {
+            foreach (var eventCount in reportEventCounts)
+            {
+                try
+                {
+                    eventCount.RemoveWhere(e => e.EventMetricIdentifier == eventMetricIdentifier);
+                }
+                catch
+                {
+                }
+            }
+        }
+
         /// <summary>
         /// Remove the least number of reported EventDetail items from the MetricsRegistry for each event metric.
         /// </summary>

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Metrics.Reporters.Cleaners;
 
 namespace Metrics.Core
 {
@@ -100,6 +101,7 @@ namespace Metrics.Core
                 var key = MetricIdentifier.Calculate(name, tags.Tags);
                 MetricMeta m;
                 this.metrics.TryRemove(key, out m);
+                EventMetricsCleaner.RemoveEvent(key);
             }
         }
 
@@ -214,39 +216,39 @@ namespace Metrics.Core
         }
 
         public void DeregisterGauge(string name, MetricTags tags)
-		{
-			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".gauge" : name;
-			this.gauges.Remove(name, tags);
+        {
+            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".gauge" : name;
+            this.gauges.Remove(name, tags);
         }
 
         public void DeregisterMeter(string name, MetricTags tags)
-		{
-			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".meter" : name;
-			this.meters.Remove(name, tags);
+        {
+            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".meter" : name;
+            this.meters.Remove(name, tags);
         }
 
         public void DeregisterCounter(string name, MetricTags tags)
-		{
-			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".counter" : name;
-			this.counters.Remove(name, tags);
+        {
+            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".counter" : name;
+            this.counters.Remove(name, tags);
         }
 
         public void DeregisterHistogram(string name, MetricTags tags)
-		{
-			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".histogram" : name;
-			this.histograms.Remove(name, tags);
+        {
+            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".histogram" : name;
+            this.histograms.Remove(name, tags);
         }
 
         public void DeregisterTimer(string name, MetricTags tags)
-		{
-			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".timer" : name;
-			this.timers.Remove(name, tags);
+        {
+            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".timer" : name;
+            this.timers.Remove(name, tags);
         }
 
         public void DeregisterEvent(string name, MetricTags tags)
-		{
-			name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".event" : name;
-			this.events.Remove(name, tags);
+        {
+            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".event" : name;
+            this.events.Remove(name, tags);
         }
     }
 }
