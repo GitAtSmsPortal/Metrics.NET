@@ -90,7 +90,7 @@ namespace Metrics.Reporters.Cleaners
         }
 
         /// <summary>
-        /// The total number of events that have been reported for the report.
+        /// The total number of event metrics that have been reported.
         /// </summary>
         /// <param name="reportIdentifier">The unique identifier for a report.</param>
         /// <returns>The total number of events.</returns>
