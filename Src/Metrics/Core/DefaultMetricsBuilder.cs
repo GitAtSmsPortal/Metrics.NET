@@ -51,5 +51,10 @@ namespace Metrics.Core
         {
             return new TimerMetric(reservoir);
         }
+
+        public EventImplementation BuildEvent(string name)
+        {
+            return new EventMetric();
+        }
     }
 }

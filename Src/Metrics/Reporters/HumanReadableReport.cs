@@ -90,6 +90,19 @@ namespace Metrics.Reporters
             this.WriteHistogram(value.Histogram, unit, durationUnit);
         }
 
+        protected override void ReportEvent(string name, EventValue value, MetricTags tags)
+        {
+            this.WriteMetricName(name);
+            foreach (var evnt in value.EventsCopy)
+            {
+                this.WriteValue("Timestamp", evnt.Timestamp.ToString());
+                foreach (var kvp in evnt.Fields)
+                {
+                    this.WriteValue(kvp.Key, kvp.Value.ToString());
+                }
+            }
+        }
+
         protected override void ReportHealth(HealthStatus status)
         {
             WriteLine();

@@ -14,6 +14,7 @@ namespace Metrics.Json
         private JsonMeter[] meters = new JsonMeter[0];
         private JsonHistogram[] histograms = new JsonHistogram[0];
         private JsonTimer[] timers = new JsonTimer[0];
+        private JsonEvent[] events = new JsonEvent[0];
         private JsonMetricsContext[] childContexts = new JsonMetricsContext[0];
 
         public string Version { get; set; }
@@ -28,6 +29,7 @@ namespace Metrics.Json
         public JsonMeter[] Meters { get { return this.meters; } set { this.meters = value ?? new JsonMeter[0]; } }
         public JsonHistogram[] Histograms { get { return this.histograms; } set { this.histograms = value ?? new JsonHistogram[0]; } }
         public JsonTimer[] Timers { get { return this.timers; } set { this.timers = value ?? new JsonTimer[0]; } }
+        public JsonEvent[] Events { get { return this.events; } set { this.events = value ?? new JsonEvent[0]; } }
         public JsonMetricsContext[] ChildContexts { get { return this.childContexts; } set { this.childContexts = value ?? new JsonMetricsContext[0]; } }
 
         public static JsonMetricsContext FromContext(MetricsData contextData)
@@ -53,6 +55,7 @@ namespace Metrics.Json
                 Meters = contextData.Meters.Select(JsonMeter.FromMeter).ToArray(),
                 Histograms = contextData.Histograms.Select(JsonHistogram.FromHistogram).ToArray(),
                 Timers = contextData.Timers.Select(JsonTimer.FromTimer).ToArray(),
+                Events = contextData.Events.Select(JsonEvent.FromEvent).ToArray(),
                 ChildContexts = contextData.ChildMetrics.Select(FromContext).ToArray()
             };
         }
@@ -109,6 +112,11 @@ namespace Metrics.Json
                 yield return new JsonProperty("Timers", this.Timers.Select(t => t.ToJsonTimer()));
             }
 
+            if (this.Events.Length > 0)
+            {
+                yield return new JsonProperty("Events", this.Events.Select(t => t.ToJsonObject()));
+            }
+
             if (this.ChildContexts.Length > 0)
             {
                 yield return new JsonProperty("ChildContexts", this.ChildContexts.Select(c => c.ToJsonObject()));
@@ -124,6 +132,7 @@ namespace Metrics.Json
                     this.Meters.Select(m => m.ToValueSource()),
                     this.Histograms.Select(h => h.ToValueSource()),
                     this.Timers.Select(t => t.ToValueSource()),
+                    this.Events.Select(e => e.ToValueSource()),
                     this.ChildContexts.Select(c => c.ToMetricsData()));
         }
     }

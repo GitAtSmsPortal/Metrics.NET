@@ -8,6 +8,10 @@ namespace Metrics.Json
             : this(name, new CollectionJsonValue(objects))
         { }
 
+        public JsonProperty(string name, IEnumerable<KeyValuePair<string, string>> value)
+            : this(name, (JsonValue)new StringKeyValuePairArrayJsonValue(value))
+        { }
+
         public JsonProperty(string name, IEnumerable<JsonProperty> properties)
             : this(name, new ObjectJsonValue(properties))
         { }

@@ -40,6 +40,7 @@ namespace Metrics.Reporters
             ReportSection("Meters", data.Meters, m => ReportMeter(FormatMetricName(contextName, m), m.Value, m.Unit, m.RateUnit, m.Tags));
             ReportSection("Histograms", data.Histograms, h => ReportHistogram(FormatMetricName(contextName, h), h.Value, h.Unit, h.Tags));
             ReportSection("Timers", data.Timers, t => ReportTimer(FormatMetricName(contextName, t), t.Value, t.Unit, t.RateUnit, t.DurationUnit, t.Tags));
+            ReportSection("Events", data.Events, e => ReportEvent(FormatMetricName(contextName, e), e.Value, e.Tags));
 
             var stack = contextStack.Concat(new[] { data.Context });
             foreach (var child in data.ChildMetrics)
@@ -67,6 +68,7 @@ namespace Metrics.Reporters
         protected abstract void ReportMeter(string name, MeterValue value, Unit unit, TimeUnit rateUnit, MetricTags tags);
         protected abstract void ReportHistogram(string name, HistogramValue value, Unit unit, MetricTags tags);
         protected abstract void ReportTimer(string name, TimerValue value, Unit unit, TimeUnit rateUnit, TimeUnit durationUnit, MetricTags tags);
+        protected abstract void ReportEvent(string name, EventValue value, MetricTags tags);
         protected abstract void ReportHealth(HealthStatus status);
 
         protected virtual string FormatContextName(IEnumerable<string> contextStack, string contextName)

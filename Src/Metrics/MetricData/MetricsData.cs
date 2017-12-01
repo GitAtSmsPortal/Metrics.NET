@@ -14,6 +14,7 @@ namespace Metrics.MetricData
             Enumerable.Empty<MeterValueSource>(),
             Enumerable.Empty<HistogramValueSource>(),
             Enumerable.Empty<TimerValueSource>(),
+            Enumerable.Empty<EventValueSource>(),
             Enumerable.Empty<MetricsData>());
 
         public readonly string Context;
@@ -26,6 +27,7 @@ namespace Metrics.MetricData
         public readonly IEnumerable<MeterValueSource> Meters;
         public readonly IEnumerable<HistogramValueSource> Histograms;
         public readonly IEnumerable<TimerValueSource> Timers;
+        public readonly IEnumerable<EventValueSource> Events;
         public readonly IEnumerable<MetricsData> ChildMetrics;
 
         public MetricsData(string context, DateTime timestamp,
@@ -35,6 +37,7 @@ namespace Metrics.MetricData
             IEnumerable<MeterValueSource> meters,
             IEnumerable<HistogramValueSource> histograms,
             IEnumerable<TimerValueSource> timers,
+            IEnumerable<EventValueSource> events,
             IEnumerable<MetricsData> childMetrics)
         {
             this.Context = context;
@@ -45,6 +48,7 @@ namespace Metrics.MetricData
             this.Meters = meters;
             this.Histograms = histograms;
             this.Timers = timers;
+            this.Events = events;
             this.ChildMetrics = childMetrics;
         }
 
@@ -62,6 +66,7 @@ namespace Metrics.MetricData
                 this.Meters.Where(filter.IsMatch),
                 this.Histograms.Where(filter.IsMatch),
                 this.Timers.Where(filter.IsMatch),
+                this.Events.Where(filter.IsMatch),
                 this.ChildMetrics.Select(m => m.Filter(filter)));
         }
 
@@ -74,6 +79,7 @@ namespace Metrics.MetricData
                 this.Meters.Union(this.ChildMetrics.SelectMany(m => m.Flatten().Meters)),
                 this.Histograms.Union(this.ChildMetrics.SelectMany(m => m.Flatten().Histograms)),
                 this.Timers.Union(this.ChildMetrics.SelectMany(m => m.Flatten().Timers)),
+                this.Events.Union(this.ChildMetrics.SelectMany(m => m.Flatten().Events)),
                 Enumerable.Empty<MetricsData>()
             );
         }
@@ -105,11 +111,15 @@ namespace Metrics.MetricData
                 .Select(t => new TimerValueSource(FormatName(prefix, t.Name), t.ValueProvider, t.Unit, t.RateUnit, t.DurationUnit, t.Tags))
                 .Union(this.ChildMetrics.SelectMany(m => m.OldFormat(FormatPrefix(prefix, m.Context)).Timers));
 
+            var events = this.Events
+                .Select(t => new EventValueSource(FormatName(prefix, t.Name), t.ValueProvider, t.Tags))
+                .Union(this.ChildMetrics.SelectMany(m => m.OldFormat(FormatPrefix(prefix, m.Context)).Events));
+
             var environment = this.Environment
                 .Select(e => new EnvironmentEntry(FormatName(prefix, e.Name), e.Value))
                 .Union(this.ChildMetrics.SelectMany(e => e.OldFormat(FormatPrefix(prefix, e.Context)).Environment));
 
-            return new MetricsData(this.Context, this.Timestamp, environment, gauges, counters, meters, histograms, timers, Enumerable.Empty<MetricsData>());
+            return new MetricsData(this.Context, this.Timestamp, environment, gauges, counters, meters, histograms, timers, events, Enumerable.Empty<MetricsData>());
         }
 
         private static string FormatPrefix(string prefix, string context)

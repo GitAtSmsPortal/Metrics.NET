@@ -116,7 +116,9 @@
     <Compile Include="Endpoints\TestMetricsEndpointHandler.cs" />
     <Compile Include="Json\JsonSerializationTests.cs" />
     <Compile Include="Metrics\CounterMetricTests.cs" />
+    <Compile Include="Metrics\EventMetricTests.cs" />
     <Compile Include="Metrics\GaugeMetricTests.cs" />
+    <Compile Include="Reporting\EventMetricsCleanerTest.cs" />
     <Compile Include="Sampling\DefaultSamplingTypeTests.cs" />
     <Compile Include="Sampling\WeightedSnapshotTests.cs" />
     <Compile Include="Utils\EWMATests.cs" />

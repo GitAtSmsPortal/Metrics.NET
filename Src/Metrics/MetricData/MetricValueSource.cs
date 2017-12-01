@@ -68,6 +68,10 @@ namespace Metrics.MetricData
             this.Tags = tags.Tags;
         }
 
+        protected MetricValueSource(string name, MetricValueProvider<T> valueProvider, MetricTags tags): this(name, valueProvider, Metrics.Unit.None, tags)
+        {
+        }
+
         /// <summary>
         /// Name of the metric.
         /// </summary>

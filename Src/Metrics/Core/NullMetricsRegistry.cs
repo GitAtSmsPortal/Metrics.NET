@@ -6,11 +6,11 @@ namespace Metrics.Core
 {
     public sealed class NullMetricsRegistry : MetricsRegistry
     {
-        private struct NullMetric : Counter, Meter, Histogram, Timer, RegistryDataProvider
+        private struct NullMetric : Counter, Meter, Histogram, Timer, Event, RegistryDataProvider
         {
             public static readonly NullMetric Instance = new NullMetric();
             private static readonly TimerContext NullContext = new TimerContext(NullMetric.Instance, null);
-			public void Increment() { }
+            public void Increment() { }
             public void Increment(long value) { }
             public void Decrement() { }
             public void Decrement(long value) { }
@@ -33,6 +33,11 @@ namespace Metrics.Core
             public long StartRecording() { return 0; }
             public long CurrentTime() { return 0; }
 
+            public void Record() { }
+            public void Record(DateTime timestamp) { }
+            public void Record(List<KeyValuePair<string, string>> fields) { }
+            public void Record(List<KeyValuePair<string, string>> fields, DateTime timestamp) { }
+
             public TimerContext NewContext(string userValue = null) { return NullContext; }
 
             public void Reset() { }
@@ -42,19 +47,23 @@ namespace Metrics.Core
             public IEnumerable<MeterValueSource> Meters { get { yield break; } }
             public IEnumerable<HistogramValueSource> Histograms { get { yield break; } }
             public IEnumerable<TimerValueSource> Timers { get { yield break; } }
+            public IEnumerable<EventValueSource> Events { get { yield break; } }
         }
 
         public RegistryDataProvider DataProvider => NullMetric.Instance;
 
         public void ClearAllMetrics() { }
-		public void ResetMetricsValues() { }
-		public void DeregisterGauge(string name, MetricTags tags) { }
-		public void DeregisterMeter(string name, MetricTags tags) { }
-		public void DeregisterCounter(string name, MetricTags tags) { }
-		public void DeregisterHistogram(string name, MetricTags tags) { }
-		public void DeregisterTimer(string name, MetricTags tags) { }
+        public void ResetMetricsValues() { }
+        public void EventValuesRemoveRange(string key, int startIndex, int count) { }
+        public void ClearEventValues() { }
+        public void DeregisterGauge(string name, MetricTags tags) { }
+        public void DeregisterMeter(string name, MetricTags tags) { }
+        public void DeregisterCounter(string name, MetricTags tags) { }
+        public void DeregisterHistogram(string name, MetricTags tags) { }
+        public void DeregisterTimer(string name, MetricTags tags) { }
+        public void DeregisterEvent(string name, MetricTags tags) { }
 
-		public void Gauge(string name, Func<MetricValueProvider<double>> valueProvider, Unit unit, MetricTags tags) { }
+        public void Gauge(string name, Func<MetricValueProvider<double>> valueProvider, Unit unit, MetricTags tags) { }
 
         public Counter Counter<T>(string name, Func<T> builder, Unit unit, MetricTags tags) where T : CounterImplementation
         {
@@ -72,6 +81,11 @@ namespace Metrics.Core
         }
 
         public Timer Timer<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, TimeUnit durationUnit, MetricTags tags) where T : TimerImplementation
+        {
+            return NullMetric.Instance;
+        }
+
+        public Event Event<T>(string name, Func<T> builder, MetricTags tags) where T : EventImplementation
         {
             return NullMetric.Instance;
         }

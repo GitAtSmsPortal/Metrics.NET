@@ -21,9 +21,9 @@ namespace Metrics
         internal static readonly MetricsContext Internal = new DefaultMetricsContext("Metrics.NET");
         
         static Metric()
-		{
-			InitConfig(GetGlobalContextName());
-		}
+        {
+            InitConfig(GetGlobalContextName());
+        }
 
         /// <summary>
         /// Exposes advanced operations that are possible on this metrics context.
@@ -60,43 +60,43 @@ namespace Metrics
         public static void ShutdownContext(string contextName)
         {
             globalContext.ShutdownContext(contextName);
-		}
+        }
 
-		public static MetricsConfig EmptyGlobalContextConfig()
-		{
-			return InitConfig(string.Empty);
-		}
+        public static MetricsConfig EmptyGlobalContextConfig()
+        {
+            return InitConfig(string.Empty);
+        }
 
-	    private static MetricsConfig InitConfig(string context)
-		{
-			globalContext = new DefaultMetricsContext(context);
-			if (MetricsConfig.GloballyDisabledMetrics)
-			{
-				globalContext.CompletelyDisableMetrics();
-				log.Info(() => "Metrics: Metrics.NET Library is completely disabled. Set Metrics.CompletelyDisableMetrics to false to re-enable.");
-			}
-			config = new MetricsConfig(globalContext);
-			config.ApplySettingsFromConfigFile();
-			return config;
-		}
+        private static MetricsConfig InitConfig(string context)
+        {
+            globalContext = new DefaultMetricsContext(context);
+            if (MetricsConfig.GloballyDisabledMetrics)
+            {
+                globalContext.CompletelyDisableMetrics();
+                log.Info(() => "Metrics: Metrics.NET Library is completely disabled. Set Metrics.CompletelyDisableMetrics to false to re-enable.");
+            }
+            config = new MetricsConfig(globalContext);
+            config.ApplySettingsFromConfigFile();
+            return config;
+        }
 
-	    /// <summary>
-		/// Entrypoint for Global Metrics Configuration.
-		/// </summary>
-		/// <example>
-		/// <code>
-		/// Metric.Config
-		///     .WithHttpEndpoint("http://localhost:1234/")
-		///     .WithErrorHandler(x => Console.WriteLine(x.ToString()))
-		///     .WithAllCounters()
-		///     .WithReporting(config => config
-		///         .WithConsoleReport(TimeSpan.FromSeconds(30))
-		///         .WithCSVReports(@"c:\temp\reports\", TimeSpan.FromSeconds(10))
-		///         .WithTextFileReport(@"C:\temp\reports\metrics.txt", TimeSpan.FromSeconds(10))
-		///     );
-		/// </code>
-		/// </example>
-		public static MetricsConfig Config { get { return config; } }
+        /// <summary>
+        /// Entrypoint for Global Metrics Configuration.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// Metric.Config
+        ///     .WithHttpEndpoint("http://localhost:1234/")
+        ///     .WithErrorHandler(x => Console.WriteLine(x.ToString()))
+        ///     .WithAllCounters()
+        ///     .WithReporting(config => config
+        ///         .WithConsoleReport(TimeSpan.FromSeconds(30))
+        ///         .WithCSVReports(@"c:\temp\reports\", TimeSpan.FromSeconds(10))
+        ///         .WithTextFileReport(@"C:\temp\reports\metrics.txt", TimeSpan.FromSeconds(10))
+        ///     );
+        /// </code>
+        /// </example>
+        public static MetricsConfig Config { get { return config; } }
 
         /// <summary>
         /// Register a performance counter as a Gauge metric.
@@ -171,73 +171,96 @@ namespace Metrics
         public static Histogram Histogram(string name, Unit unit, SamplingType samplingType = SamplingType.Default, MetricTags tags = default(MetricTags))
         {
             return globalContext.Histogram(name, unit, samplingType, tags);
-		}
-
-		/// <summary>
-		/// Removes the specified Gauge from the MetricRegistry.
-		/// </summary>
-		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
-		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
-		public static void DeregisterGauge(string name, MetricTags tags = default(MetricTags))
-		{
-			globalContext.DeregisterGauge(name, tags);
-		}
-
-		/// <summary>
-		/// Removes the specified Meter from the MetricRegistry.
-		/// </summary>
-		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
-		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
-		public static void DeregisterMeter(string name, MetricTags tags = default(MetricTags))
-		{
-			globalContext.DeregisterMeter(name, tags);
-		}
-
-		/// <summary>
-		/// Removes the specified Counter from the MetricRegistry.
-		/// </summary>
-		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
-		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
-		public static void DeregisterCounter(string name, MetricTags tags = default(MetricTags))
-		{
-			globalContext.DeregisterCounter(name, tags);
-		}
-
-		/// <summary>
-		/// Removes the specified Histogram from the MetricRegistry.
-		/// </summary>
-		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
-		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
-		public static void DeregisterHistogram(string name, MetricTags tags = default(MetricTags))
-		{
-			globalContext.DeregisterHistogram(name, tags);
-		}
-
-		/// <summary>
-		/// Removes the specified Timer from the MetricRegistry.
-		/// </summary>
-		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
-		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
-		public static void DeregisterTimer(string name, MetricTags tags = default(MetricTags))
-		{
-			globalContext.DeregisterTimer(name, tags);
-		}
-
-		/// <summary>
-		/// A timer is basically a histogram of the duration of a type of event and a meter of the rate of its occurrence.
-		/// <seealso cref="Histogram"/> and <seealso cref="Meter"/>
-		/// </summary>
-		/// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
-		/// <param name="unit">Description of what the is being measured ( Unit.Requests , Unit.Items etc ) .</param>
-		/// <param name="samplingType">Type of the sampling to use (see SamplingType for details ).</param>
-		/// <param name="rateUnit">Time unit for rates reporting. Defaults to Second ( occurrences / second ).</param>
-		/// <param name="durationUnit">Time unit for reporting durations. Defaults to Milliseconds. </param>
-		/// <param name="tags">Optional set of tags that can be associated with the metric.</param>
-		/// <returns>Reference to the metric</returns>
-		public static Timer Timer(string name, Unit unit, SamplingType samplingType = SamplingType.Default,
+        }
+        
+        /// <summary>
+        /// A timer is basically a histogram of the duration of a type of event and a meter of the rate of its occurrence.
+        /// <seealso cref="Histogram"/> and <seealso cref="Meter"/>
+        /// </summary>
+        /// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+        /// <param name="unit">Description of what the is being measured ( Unit.Requests , Unit.Items etc ) .</param>
+        /// <param name="samplingType">Type of the sampling to use (see SamplingType for details ).</param>
+        /// <param name="rateUnit">Time unit for rates reporting. Defaults to Second ( occurrences / second ).</param>
+        /// <param name="durationUnit">Time unit for reporting durations. Defaults to Milliseconds. </param>
+        /// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+        /// <returns>Reference to the metric</returns>
+        public static Timer Timer(string name, Unit unit, SamplingType samplingType = SamplingType.Default,
             TimeUnit rateUnit = TimeUnit.Seconds, TimeUnit durationUnit = TimeUnit.Milliseconds, MetricTags tags = default(MetricTags))
         {
             return globalContext.Timer(name, unit, samplingType, rateUnit, durationUnit, tags);
+        }
+
+        /// <summary>
+        /// An event records the occurance of an event.
+        /// </summary>
+        /// <param name="name">Name of the metric. Must be unique across all counters in this context.</param>
+        /// <param name="tags">Optional set of tags that can be associated with the metric. Tags can be string array or comma separated values in a string.
+        /// ex: tags: "tag1,tag2" or tags: new[] {"tag1", "tag2"}
+        /// </param>
+        /// <returns>Reference to the metric</returns>
+        public static Event Event(string name, MetricTags tags = default(MetricTags))
+        {
+            return globalContext.Event(name, tags);
+        }
+
+        /// <summary>
+        /// Removes the specified Gauge from the MetricRegistry.
+        /// </summary>
+        /// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+        /// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+        public static void DeregisterGauge(string name, MetricTags tags = default(MetricTags))
+        {
+            globalContext.DeregisterGauge(name, tags);
+        }
+
+        /// <summary>
+        /// Removes the specified Meter from the MetricRegistry.
+        /// </summary>
+        /// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+        /// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+        public static void DeregisterMeter(string name, MetricTags tags = default(MetricTags))
+        {
+            globalContext.DeregisterMeter(name, tags);
+        }
+
+        /// <summary>
+        /// Removes the specified Counter from the MetricRegistry.
+        /// </summary>
+        /// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+        /// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+        public static void DeregisterCounter(string name, MetricTags tags = default(MetricTags))
+        {
+            globalContext.DeregisterCounter(name, tags);
+        }
+
+        /// <summary>
+        /// Removes the specified Histogram from the MetricRegistry.
+        /// </summary>
+        /// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+        /// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+        public static void DeregisterHistogram(string name, MetricTags tags = default(MetricTags))
+        {
+            globalContext.DeregisterHistogram(name, tags);
+        }
+
+        /// <summary>
+        /// Removes the specified Timer from the MetricRegistry.
+        /// </summary>
+        /// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+        /// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+        public static void DeregisterTimer(string name, MetricTags tags = default(MetricTags))
+        {
+            globalContext.DeregisterTimer(name, tags);
+        }
+
+        /// <summary>
+        /// Removes the specified Event from the MetricRegistry.
+        /// </summary>
+        /// <param name="name">Name of the metric. Must be unique across all timers in this context.</param>
+        /// <param name="tags">Optional set of tags that can be associated with the metric.</param>
+        public static void DeregisterEvent(string name, MetricTags tags = default(MetricTags))
+        {
+            globalContext.DeregisterEvent(name, tags);
         }
 
         internal static void EnableInternalMetrics()

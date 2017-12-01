@@ -62,5 +62,10 @@ namespace Metrics.Tests
         {
             return new TimerMetric(new HistogramMetric(new UniformReservoir()), new MeterMetric(this.clock, this.scheduler), this.clock);
         }
+
+        public EventImplementation BuildEvent(string name)
+        {
+            return new EventMetric();
+        }
     }
 }

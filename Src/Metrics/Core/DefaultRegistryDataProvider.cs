@@ -11,19 +11,22 @@ namespace Metrics.Core
         private readonly Func<IEnumerable<MeterValueSource>> meters;
         private readonly Func<IEnumerable<HistogramValueSource>> histograms;
         private readonly Func<IEnumerable<TimerValueSource>> timers;
+        private readonly Func<IEnumerable<EventValueSource>> events;
 
         public DefaultRegistryDataProvider(
             Func<IEnumerable<GaugeValueSource>> gauges,
             Func<IEnumerable<CounterValueSource>> counters,
             Func<IEnumerable<MeterValueSource>> meters,
             Func<IEnumerable<HistogramValueSource>> histograms,
-            Func<IEnumerable<TimerValueSource>> timers)
+            Func<IEnumerable<TimerValueSource>> timers,
+            Func<IEnumerable<EventValueSource>> events)
         {
             this.gauges = gauges;
             this.counters = counters;
             this.meters = meters;
             this.histograms = histograms;
             this.timers = timers;
+            this.events = events;
         }
 
         public IEnumerable<GaugeValueSource> Gauges { get { return this.gauges(); } }
@@ -31,5 +34,6 @@ namespace Metrics.Core
         public IEnumerable<MeterValueSource> Meters { get { return this.meters(); } }
         public IEnumerable<HistogramValueSource> Histograms { get { return this.histograms(); } }
         public IEnumerable<TimerValueSource> Timers { get { return this.timers(); } }
+        public IEnumerable<EventValueSource> Events { get { return this.events(); } }
     }
 }

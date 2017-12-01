@@ -45,6 +45,7 @@ namespace Metrics.Core
                     this.registryDataProvider.Meters.ToArray(),
                     this.registryDataProvider.Histograms.ToArray(),
                     this.registryDataProvider.Timers.ToArray(),
+                    this.registryDataProvider.Events.ToArray(),
                     this.childProviders().Select(p => p.CurrentMetricsData));
             }
         }

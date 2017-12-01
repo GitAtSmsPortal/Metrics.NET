@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Metrics.Json;
@@ -48,27 +49,38 @@ namespace Metrics.Tests.Json
         private readonly HistogramValue histogramValue = new HistogramValue(1, 2, "3", 4, "5", 6, 7, "8", 9, 10, 11, 12, 13, 14, 15, 16);
 
         private readonly TimerValue timerValue;
+        private EventValue eventValue;
 
         private readonly GaugeValueSource gauge = new GaugeValueSource("test", Provider(0.5), Unit.MegaBytes, MetricTags.None);
         private readonly CounterValueSource counter;
         private readonly MeterValueSource meter;
         private readonly HistogramValueSource histogram;
         private readonly TimerValueSource timer;
+        private readonly EventValueSource evnt;
 
         private readonly MetricsData data;
         private readonly JsonMetricsContext jsonContext;
 
         public JsonSerializationTests()
         {
+            var eventFields = new Dictionary<string, string>();
+            eventFields.Add("field", "value");
+            eventFields.Add("abc", "123");
+            eventValue = new EventValue(new List<EventDetails>
+            {
+                new EventDetails(eventFields, new DateTime(1, 1, 1))
+            });
+
             this.timerValue = new TimerValue(this.meterValue, this.histogramValue, 0, 1, TimeUnit.Nanoseconds);
 
             this.counter = new CounterValueSource("test1", Provider(counterValue), Unit.Errors, MetricTags.None);
             this.meter = new MeterValueSource("test2", Provider(meterValue), Unit.Calls, TimeUnit.Seconds, MetricTags.None);
             this.histogram = new HistogramValueSource("test3", Provider(histogramValue), Unit.Items, MetricTags.None);
             this.timer = new TimerValueSource("test4", Provider(timerValue), Unit.Requests, TimeUnit.Seconds, TimeUnit.Milliseconds, MetricTags.None);
+            this.evnt = new EventValueSource("test5", Provider(eventValue), MetricTags.None);
 
             this.data = new MetricsData("test", new DateTime(2014, 2, 17), new[] { new EnvironmentEntry("name", "1") },
-                new[] { gauge }, new[] { counter }, new[] { meter }, new[] { histogram }, new[] { timer },
+                new[] { gauge }, new[] { counter }, new[] { meter }, new[] { histogram }, new[] { timer }, new[] { evnt },
                     Enumerable.Empty<MetricsData>()
             );
             this.jsonContext = JsonMetricsContext.FromContext(this.data, "1");
@@ -209,6 +221,24 @@ namespace Metrics.Tests.Json
             var result = JsonConvert.DeserializeObject<JsonMetricsContext>(json);
 
             result.Histograms.ShouldBeEquivalentTo(jsonContext.Histograms);
+        }
+
+        [Fact]
+        public void JsonSerialization_CanSerializeEvent()
+        {
+            jsonContext.Events.Should().HaveCount(1);
+            jsonContext.Events[0].Name.Should().Be(evnt.Name);
+            jsonContext.Events[0].Events[0].Timestamp.Should().Be(new DateTime(1, 1, 1));
+            jsonContext.Events[0].Events[0].Fields.Count.Should().Be(2);
+            jsonContext.Events[0].Events[0].Fields["field"].Should().Be("value");
+            jsonContext.Events[0].Events[0].Fields["abc"].Should().Be("123");
+            jsonContext.Events[0].Unit.Should().Be(evnt.Unit.Name);
+
+            var json = jsonContext.ToJsonObject().AsJson(true);
+
+            var result = JsonConvert.DeserializeObject<JsonMetricsContext>(json);
+
+            result.Events.ShouldBeEquivalentTo(jsonContext.Events);
         }
     }
 }

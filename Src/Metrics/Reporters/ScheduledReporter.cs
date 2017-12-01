@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Metrics.MetricData;
+using Metrics.Reporters.Cleaners;
 using Metrics.Utils;
 
 namespace Metrics.Reporters
@@ -11,6 +12,7 @@ namespace Metrics.Reporters
         private readonly MetricsReport report;
         private readonly MetricsDataProvider metricsDataProvider;
         private readonly Func<HealthStatus> healthStatus;
+        private readonly int reportIdentifier;
 
         public ScheduledReporter(MetricsReport reporter, MetricsDataProvider metricsDataProvider, Func<HealthStatus> healthStatus, TimeSpan interval)
             : this(reporter, metricsDataProvider, healthStatus, interval, new ActionScheduler()) { }
@@ -22,11 +24,14 @@ namespace Metrics.Reporters
             this.healthStatus = healthStatus;
             this.scheduler = scheduler;
             this.scheduler.Start(interval, t => RunReport(t));
+            this.reportIdentifier = EventMetricsCleaner.RegisterReport(interval);
         }
 
         private void RunReport(CancellationToken token)
         {
-            report.RunReport(this.metricsDataProvider.CurrentMetricsData, this.healthStatus, token);
+            var data = this.metricsDataProvider.CurrentMetricsData;
+            this.report.RunReport(data, this.healthStatus, token);
+            EventMetricsCleaner.UpdateTotalReportedEvents(this.reportIdentifier, data.Events);
         }
 
         public void Dispose()
