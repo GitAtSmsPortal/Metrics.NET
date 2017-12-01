@@ -27,9 +27,10 @@ namespace Metrics.Reporters.Cleaners
         /// </summary>
         private class ReportEventCounts : List<HashSet<EventCount>> { }
         
-        private static readonly TimeSpan cleanIntervalBuffer = new TimeSpan(0, 0, 0, 0, 5000);
+        private static readonly TimeSpan cleanIntervalBuffer = new TimeSpan(0, 0, 0, 5);
         private static readonly ReportEventCounts reportEventCounts;
-        private static ThreadingTimer timer;
+        private static readonly ThreadingTimer timer;
+        private static bool timerIsDisposed = false;
         private static ITimer testTimer;
         private static TimeSpan curInterval;
 
@@ -56,6 +57,7 @@ namespace Metrics.Reporters.Cleaners
             testTimer = tmr;
             testTimer.Tick += (sender, args) => Clean();
             timer.Dispose();
+            timerIsDisposed = true;
         }
 
         private static bool TestTimerEnabled {
@@ -180,6 +182,18 @@ namespace Metrics.Reporters.Cleaners
         public static void Clear()
         {
             reportEventCounts.Clear();
+        }
+
+        /// <summary>
+        /// Resets the clenaer interval to be the default interval.
+        /// </summary>
+        public static void ResetInterval()
+        {
+            curInterval = cleanIntervalBuffer;
+            if (!timerIsDisposed)
+            {
+                timer.Change(curInterval, curInterval);
+            }
         }
 
         /// <summary>

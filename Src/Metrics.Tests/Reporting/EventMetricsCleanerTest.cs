@@ -12,6 +12,12 @@ namespace Metrics.Tests.Reporting
 {
     public class EventMetricsCleanerTest
     {
+        public void ResetCleaner()
+        {
+            EventMetricsCleaner.Clear();
+            EventMetricsCleaner.ResetInterval();
+        }
+
         [Fact]
         public void StartsWithZeroReports()
         {
@@ -23,7 +29,7 @@ namespace Metrics.Tests.Reporting
         {
             EventMetricsCleaner.CurrentIntervalSeconds.Should().BeGreaterThan(0);
 
-            EventMetricsCleaner.Clear();
+            ResetCleaner();
         }
 
         [Fact]
@@ -33,17 +39,33 @@ namespace Metrics.Tests.Reporting
 
             EventMetricsCleaner.TotalReports.Should().Be(1);
 
-            EventMetricsCleaner.Clear();
+            ResetCleaner();
         }
 
         [Fact]
-        public void RegisterReport_WithGreaterTimespan_UpdatesIntervalToBeGreaterThanReportInterval()
+        public void RegisterReport_UpdatesCleanerInterval()
         {
+            EventMetricsCleaner.CurrentIntervalSeconds.Should().Be(5);
+
             EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 60));
 
-            EventMetricsCleaner.CurrentIntervalSeconds.Should().BeGreaterThan(60);
+            EventMetricsCleaner.CurrentIntervalSeconds.Should().Be(65);
 
-            EventMetricsCleaner.Clear();
+            ResetCleaner();
+        }
+
+        [Fact]
+        public void RegisterMultipleReports_UpdatesCleanerInterval_UsingLargestReportInverval()
+        {
+            EventMetricsCleaner.CurrentIntervalSeconds.Should().Be(5);
+
+            EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 3));
+            EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 8));
+            EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 2));
+
+            EventMetricsCleaner.CurrentIntervalSeconds.Should().Be(13);
+
+            ResetCleaner();
         }
 
         [Fact]
@@ -57,7 +79,7 @@ namespace Metrics.Tests.Reporting
 
             EventMetricsCleaner.GetReportsEventCount(reportIndex).Should().Be(1);
 
-            EventMetricsCleaner.Clear();
+            ResetCleaner();
         }
 
         [Fact]
@@ -75,7 +97,7 @@ namespace Metrics.Tests.Reporting
             EventMetricsCleaner.GetReportsEventCount(reportIndex1).Should().Be(0);
             EventMetricsCleaner.GetReportsEventCount(reportIndex2).Should().Be(0);
 
-            EventMetricsCleaner.Clear();
+            ResetCleaner();
         }
 
         [Fact]
@@ -87,7 +109,7 @@ namespace Metrics.Tests.Reporting
 
             EventMetricsCleaner.TotalReports.Should().Be(0);
 
-            EventMetricsCleaner.Clear();
+            ResetCleaner();
         }
 
         [Fact]
@@ -115,7 +137,7 @@ namespace Metrics.Tests.Reporting
 
             EventMetricsCleaner.GetEventDetailCount("test").Should().Be(1);
 
-            EventMetricsCleaner.Clear();
+            ResetCleaner();
         }
 
         [Fact]
@@ -141,7 +163,7 @@ namespace Metrics.Tests.Reporting
 
             EventMetricsCleaner.GetEventDetailCount("test").Should().Be(0);
 
-            EventMetricsCleaner.Clear();
+            ResetCleaner();
         }
 
         [Fact]
@@ -164,7 +186,7 @@ namespace Metrics.Tests.Reporting
 
             EventMetricsCleaner.GetEventDetailCount("test").Should().Be(0);
 
-            EventMetricsCleaner.Clear();
+            ResetCleaner();
         }
 
         [Fact]
@@ -191,7 +213,7 @@ namespace Metrics.Tests.Reporting
 
             EventMetricsCleaner.GetEventDetailCount("test").Should().Be(0);
 
-            EventMetricsCleaner.Clear();
+            ResetCleaner();
         }
 
         public class MockTimer : ITimer
