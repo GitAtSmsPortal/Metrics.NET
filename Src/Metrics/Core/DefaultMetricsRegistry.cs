@@ -27,7 +27,7 @@ namespace Metrics.Core
                 public TValue Value { get; }
             }
 
-            private readonly ConcurrentDictionary<string, MetricMeta> metrics =
+            private ConcurrentDictionary<string, MetricMeta> metrics =
                 new ConcurrentDictionary<string, MetricMeta>();
 
             public IEnumerable<TValue> All
@@ -84,6 +84,21 @@ namespace Metrics.Core
                 }
             }
 
+            public void ClearEventValues()
+            {
+                lock (this.locker)
+                {
+                    foreach (var metricMeta in this.metrics.Values)
+                    {
+                        var src = metricMeta.Value as EventValueSource;
+                        if (src != null)
+                        {
+                            src.Value.Events.Clear();
+                        }
+                    }
+                }
+            }
+
             public void Reset()
             {
                 lock (this.locker)
@@ -126,6 +141,11 @@ namespace Metrics.Core
         public void EventValuesRemoveRange(string key, int startIndex, int count)
         {
             events.EventValuesRemoveRange(key, startIndex, count);
+        }
+
+        public void ClearEventValues()
+        {
+            events.ClearEventValues();
         }
 
         public RegistryDataProvider DataProvider { get; }

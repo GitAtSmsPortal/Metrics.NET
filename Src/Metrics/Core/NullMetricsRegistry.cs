@@ -55,6 +55,7 @@ namespace Metrics.Core
         public void ClearAllMetrics() { }
         public void ResetMetricsValues() { }
         public void EventValuesRemoveRange(string key, int startIndex, int count) { }
+        public void ClearEventValues() { }
         public void DeregisterGauge(string name, MetricTags tags) { }
         public void DeregisterMeter(string name, MetricTags tags) { }
         public void DeregisterCounter(string name, MetricTags tags) { }

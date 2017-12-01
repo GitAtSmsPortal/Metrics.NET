@@ -41,6 +41,8 @@ namespace Metrics.Core
 
         void EventValuesRemoveRange(string key, int startIndex, int count);
 
+        void ClearEventValues();
+
         void DeregisterGauge(string name, MetricTags tags);
 
         void DeregisterMeter(string name, MetricTags tags);

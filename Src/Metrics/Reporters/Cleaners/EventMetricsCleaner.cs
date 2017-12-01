@@ -27,7 +27,7 @@ namespace Metrics.Reporters.Cleaners
         /// </summary>
         private class ReportEventCounts : List<HashSet<EventCount>> { }
         
-        private static readonly TimeSpan cleanIntervalBuffer = new TimeSpan(0, 0, 0, 0, 10000);
+        private static readonly TimeSpan cleanIntervalBuffer = new TimeSpan(0, 0, 0, 0, 5000);
         private static readonly ReportEventCounts reportEventCounts;
         private static ThreadingTimer timer;
         private static ITimer testTimer;
@@ -204,6 +204,12 @@ namespace Metrics.Reporters.Cleaners
         {
             if (Registry != null)
             {
+                if (reportEventCounts.Count == 0)
+                {
+                    Registry.ClearEventValues();
+                    return;
+                }
+
                 var eventMetricIdentifiers = new HashSet<string>();
                 var lowestNumEventsReported = new Dictionary<string, int>();
                 foreach (var eventCounts in reportEventCounts)
@@ -212,7 +218,7 @@ namespace Metrics.Reporters.Cleaners
                     {
                         var eventMetricId = eventCount.EventMetricIdentifier;
                         var totalEventsReported = eventCount.TotalEventsReported;
-
+                        
                         if (totalEventsReported == 0)
                         {
                             // The cleaner runs after all reports have run, therefore if a report has reported an event, 
@@ -236,6 +242,12 @@ namespace Metrics.Reporters.Cleaners
                             lowestNumEventsReported.Add(eventMetricId, totalEventsReported);
                         }
                     }
+                }
+
+                if (eventMetricIdentifiers.Count == 0)
+                {
+                    Registry.ClearEventValues();
+                    return;
                 }
 
                 foreach (var eventMetricId in eventMetricIdentifiers)
