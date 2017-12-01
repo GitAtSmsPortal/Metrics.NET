@@ -185,7 +185,7 @@ namespace Metrics.Reporters.Cleaners
         }
 
         /// <summary>
-        /// Resets the clenaer interval to be the default interval.
+        /// Resets the cleaner interval to be the default interval.
         /// </summary>
         public static void ResetInterval()
         {
