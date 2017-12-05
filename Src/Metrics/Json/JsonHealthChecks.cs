@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Metrics.Core;
 using Metrics.Utils;
 
 namespace Metrics.Json
@@ -36,18 +37,26 @@ namespace Metrics.Json
 
         public JsonHealthChecks AddObject(HealthStatus status)
         {
-            var properties = new List<JsonProperty>() { new JsonProperty("IsHealthy", status.IsHealthy) };
-            var unhealty = status.Results.Where(r => !r.Check.IsHealthy)
-                .Select(r => new JsonProperty(r.Name, r.Check.Message));
-            properties.Add(new JsonProperty("Unhealthy", unhealty));
-            var healty = status.Results.Where(r => r.Check.IsHealthy)
-                    .Select(r => new JsonProperty(r.Name, r.Check.Message));
-            properties.Add(new JsonProperty("Healthy", healty));
-            this.root.AddRange(properties);
-            return this;
-        }
+			var properties = new List<JsonProperty>() { new JsonProperty("IsHealthy", status.IsHealthy) };
+			var unhealty = status.Results.Where(r => !r.Check.IsHealthy);
+			properties.Add(new JsonProperty("Unhealthy", CreateHealthJsonObject(unhealty)));
+			var healthy = status.Results.Where(r => r.Check.IsHealthy);
+			properties.Add(new JsonProperty("Healthy", CreateHealthJsonObject(healthy)));
+			this.root.AddRange(properties);
+			return this;
+		}
 
-        public string GetJson(bool indented = true)
+		private IEnumerable<JsonObject> CreateHealthJsonObject(IEnumerable<HealthCheck.Result> results)
+		{
+			return results.Select(r => new JsonObject(new List<JsonProperty>
+			{
+				new JsonProperty("Name", r.Name),
+				new JsonProperty("Message", r.Check.Message),
+				new JsonProperty("Tags", r.Tags.Tags)
+			}));
+		}
+
+		public string GetJson(bool indented = true)
         {
             return new JsonObject(root).AsJson(indented);
         }

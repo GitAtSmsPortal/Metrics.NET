@@ -46,9 +46,9 @@ namespace Metrics
         /// </summary>
         /// <param name="name">Name of the health check.</param>
         /// <param name="check">Action to execute.</param>
-        public static void RegisterHealthCheck(string name, Action check)
+        public static void RegisterHealthCheck(string name, Action check, MetricTags tags = default(MetricTags))
         {
-            RegisterHealthCheck(new HealthCheck(name, check));
+            RegisterHealthCheck(new HealthCheck(name, check, tags));
         }
 
         /// <summary>
@@ -57,9 +57,9 @@ namespace Metrics
         /// </summary>
         /// <param name="name">Name of the health check.</param>
         /// <param name="check">Function to execute.</param>
-        public static void RegisterHealthCheck(string name, Func<string> check)
+        public static void RegisterHealthCheck(string name, Func<string> check, MetricTags tags = default(MetricTags))
         {
-            RegisterHealthCheck(new HealthCheck(name, check));
+            RegisterHealthCheck(new HealthCheck(name, check, tags));
         }
 
         /// <summary>
@@ -68,9 +68,9 @@ namespace Metrics
         /// </summary>
         /// <param name="name">Name of the health check.</param>
         /// <param name="check">Function to execute</param>
-        public static void RegisterHealthCheck(string name, Func<HealthCheckResult> check)
+        public static void RegisterHealthCheck(string name, Func<HealthCheckResult> check, MetricTags tags = default(MetricTags))
         {
-            RegisterHealthCheck(new HealthCheck(name, check));
+            RegisterHealthCheck(new HealthCheck(name, check, tags));
         }
 
         /// <summary>
@@ -79,13 +79,15 @@ namespace Metrics
         /// <param name="healthCheck">Custom health check to register.</param>
         public static void RegisterHealthCheck(HealthCheck healthCheck)
         {
-            checks.AddOrUpdate(healthCheck.Name, healthCheck, (key, old) => healthCheck);
+	        var name = MetricIdentifier.Calculate(healthCheck.Name, healthCheck.Tags);
+            checks.AddOrUpdate(name, healthCheck, (key, old) => healthCheck);
         }
 
-        public static void UnregisterHealthCheck(string healthCheckName)
+        public static void UnregisterHealthCheck(string healthCheckName, MetricTags tags = default(MetricTags))
         {
             HealthCheck healthCheck;
-            checks.TryRemove(healthCheckName, out healthCheck);
+			var name = MetricIdentifier.Calculate(healthCheckName, tags);
+			checks.TryRemove(name, out healthCheck);
         }
 
         /// <summary>
