@@ -7,7 +7,7 @@ namespace Metrics.Core
     {
         public static string Calculate(string name, KeyValuePair<string, string>[] tags)
         {
-            return MetricsConfig.UseTagIdentifiers ? name + GetHashCode(tags) : name;
+            return name + GetHashCode(tags);
         }
 
         private static int GetHashCode(KeyValuePair<string, string>[] tags)

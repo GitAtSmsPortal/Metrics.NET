@@ -156,7 +156,7 @@ namespace Metrics.Core
 
         public void Gauge(string name, Func<MetricValueProvider<double>> valueProvider, Unit unit, MetricTags tags)
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".gauge" : name;
+            name = name + ".gauge";
             this.gauges.GetOrAdd(name, tags, () =>
             {
                 MetricValueProvider<double> gauge = valueProvider();
@@ -167,7 +167,7 @@ namespace Metrics.Core
         public Counter Counter<T>(string name, Func<T> builder, Unit unit, MetricTags tags)
             where T : CounterImplementation
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".counter" : name;
+            name = name + ".counter";
             return this.counters.GetOrAdd(name, tags, () =>
             {
                 T counter = builder();
@@ -178,7 +178,7 @@ namespace Metrics.Core
         public Meter Meter<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, MetricTags tags)
             where T : MeterImplementation
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".meter" : name;
+            name = name + ".meter";
             return this.meters.GetOrAdd(name, tags, () =>
             {
                 T meter = builder();
@@ -189,7 +189,7 @@ namespace Metrics.Core
         public Histogram Histogram<T>(string name, Func<T> builder, Unit unit, MetricTags tags)
             where T : HistogramImplementation
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".histogram" : name;
+            name = name + ".histogram";
             return this.histograms.GetOrAdd(name, tags, () =>
             {
                 T histogram = builder();
@@ -200,7 +200,7 @@ namespace Metrics.Core
         public Timer Timer<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, TimeUnit durationUnit, MetricTags tags)
             where T : TimerImplementation
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".timer" : name;
+            name = name + ".timer";
             return this.timers.GetOrAdd(name, tags, () =>
             {
                 T timer = builder();
@@ -211,7 +211,7 @@ namespace Metrics.Core
         public Event Event<T>(string name, Func<T> builder, MetricTags tags)
             where T : EventImplementation
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".event" : name;
+            name = name + ".event";
             return this.events.GetOrAdd(name, tags, () =>
             {
                 T evnt = builder();
@@ -241,37 +241,37 @@ namespace Metrics.Core
 
         public void DeregisterGauge(string name, MetricTags tags)
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".gauge" : name;
+            name = name + ".gauge";
             this.gauges.Remove(name, tags);
         }
 
         public void DeregisterMeter(string name, MetricTags tags)
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".meter" : name;
+            name = name + ".meter";
             this.meters.Remove(name, tags);
         }
 
         public void DeregisterCounter(string name, MetricTags tags)
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".counter" : name;
+            name = name + ".counter";
             this.counters.Remove(name, tags);
         }
 
         public void DeregisterHistogram(string name, MetricTags tags)
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".histogram" : name;
+            name = name + ".histogram";
             this.histograms.Remove(name, tags);
         }
 
         public void DeregisterTimer(string name, MetricTags tags)
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".timer" : name;
+            name = name + ".timer";
             this.timers.Remove(name, tags);
         }
 
         public void DeregisterEvent(string name, MetricTags tags)
         {
-            name = MetricsConfig.UseMetricTypeIdentifiers ? name + ".event" : name;
+            name = name + ".event";
             this.events.Remove(name, tags);
         }
     }
