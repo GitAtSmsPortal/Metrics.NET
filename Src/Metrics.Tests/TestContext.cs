@@ -58,7 +58,7 @@ namespace Metrics.Tests
 
         private T ValueFor<T>(IEnumerable<MetricValueSource<T>> values, string[] nameWithContext)
         {
-            var value = values.Where(t => t.Name == nameWithContext.Last())
+            var value = values.Where(t => t.Name.Contains(nameWithContext.Last()))
                 .Select(t => t.Value);
 
             value.Should().HaveCount(1, "No metric found with name {0} in context {1}. Available names: {2}", nameWithContext.Last(),
