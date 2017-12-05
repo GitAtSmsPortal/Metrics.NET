@@ -1,5 +1,7 @@
 ﻿
 using System;
+using System.Collections.Generic;
+
 namespace Metrics.MetricData
 {
     /// <summary>
@@ -90,7 +92,7 @@ namespace Metrics.MetricData
         /// <summary>
         /// Tags associated with the metric.
         /// </summary>
-        public string[] Tags { get; private set; }
+        public KeyValuePair<string,string>[] Tags { get; private set; }
 
         /// <summary>
         /// Instance capable of returning the current value for the metric.

@@ -22,7 +22,11 @@ namespace Metrics.Core
                     this.Value = valueUnit;
                 }
 
-                public string Name => this.Value.Name;
+                public string Name
+                {
+                    get { return this.Value.Name; }
+                }
+
                 public TMetric Metric { get; }
                 public TValue Value { get; }
             }
