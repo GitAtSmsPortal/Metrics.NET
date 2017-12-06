@@ -11,8 +11,12 @@ using Xunit;
 namespace Metrics.Tests.Reporting
 {
     public class EventMetricsCleanerTest
-    {
-        public void ResetCleaner()
+	{
+		private const string MetricName = "test";
+		private const string MetricNameType = "test.event";
+		private readonly string metricNameTypeTags = MetricIdentifier.Calculate("test.event");
+
+		public void ResetCleaner()
         {
             EventMetricsCleaner.Clear();
             EventMetricsCleaner.ResetInterval();
@@ -72,7 +76,7 @@ namespace Metrics.Tests.Reporting
         public void Update_RegistersEventAssociatedWithReport()
         {
             var registry = new DefaultMetricsRegistry();
-            registry.Event("test", () => { return new EventMetric(); }, MetricTags.None);
+            registry.Event(MetricName, () => { return new EventMetric(); }, MetricTags.None);
 			var reportIndex = EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
 
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex, registry.DataProvider.Events);
@@ -86,14 +90,13 @@ namespace Metrics.Tests.Reporting
         public void RemoveEvent_RemovesEventFromAllReports()
         {
             var registry = new DefaultMetricsRegistry();
-            registry.Event("test", () => { return new EventMetric(); }, MetricTags.None);
-			var metricIdentifier = MetricIdentifier.Calculate("test.event", MetricTags.None.Tags);
+            registry.Event(MetricName, () => { return new EventMetric(); }, MetricTags.None);
 			var reportIndex1 = EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
             var reportIndex2 = EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex1, registry.DataProvider.Events);
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex2, registry.DataProvider.Events);
 
-            EventMetricsCleaner.RemoveEvent(metricIdentifier);
+            EventMetricsCleaner.RemoveEvent(metricNameTypeTags);
 
             EventMetricsCleaner.GetReportsEventCount(reportIndex1).Should().Be(0);
             EventMetricsCleaner.GetReportsEventCount(reportIndex2).Should().Be(0);
@@ -124,20 +127,19 @@ namespace Metrics.Tests.Reporting
             var reportIndex1 = EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
             var reportIndex2 = EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
             var metric = new EventMetric();
-            registry.Event("test", () => { return metric; }, MetricTags.None);
-			var metricIdentifier = MetricIdentifier.Calculate("test.event", MetricTags.None.Tags);
+            registry.Event(MetricName, () => { return metric; }, MetricTags.None);
 
 			metric.Record();
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex1, registry.DataProvider.Events);
             metric.Record();
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex2, registry.DataProvider.Events);
 
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex1, metricIdentifier).Should().Be(1);
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex2, metricIdentifier).Should().Be(2);
+            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex1, metricNameTypeTags).Should().Be(1);
+            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex2, metricNameTypeTags).Should().Be(2);
 
             timer.OnTimerCallback();
 
-            EventMetricsCleaner.GetEventDetailCount(metricIdentifier).Should().Be(1);
+            EventMetricsCleaner.GetEventDetailCount(MetricNameType).Should().Be(1);
 
             ResetCleaner();
         }
@@ -153,18 +155,17 @@ namespace Metrics.Tests.Reporting
             var reportIndex1 = EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
             var reportIndex2 = EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
             var metric = new EventMetric();
-            registry.Event("test", () => { return metric; }, MetricTags.None);
-	        var metricIdentifier = MetricIdentifier.Calculate("test.event", MetricTags.None.Tags);
+            registry.Event(MetricName, () => { return metric; }, MetricTags.None);
 
             metric.Record();
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex1, registry.DataProvider.Events);
 
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex1, metricIdentifier).Should().Be(1);
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex2, metricIdentifier).Should().Be(0);
+            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex1, metricNameTypeTags).Should().Be(1);
+            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex2, metricNameTypeTags).Should().Be(0);
 
             timer.OnTimerCallback();
 
-            EventMetricsCleaner.GetEventDetailCount(metricIdentifier).Should().Be(0);
+            EventMetricsCleaner.GetEventDetailCount(MetricNameType).Should().Be(0);
 
             ResetCleaner();
         }
@@ -178,17 +179,16 @@ namespace Metrics.Tests.Reporting
             EventMetricsCleaner.EnableTestTimer(timer);
 
             var metric = new EventMetric();
-            registry.Event("test", () => { return metric; }, MetricTags.None);
-			var metricIdentifier = MetricIdentifier.Calculate("test.event", MetricTags.None.Tags);
+            registry.Event(MetricName, () => { return metric; }, MetricTags.None);
 
 			metric.Record();
             metric.Record();
             metric.Record();
-            EventMetricsCleaner.GetEventDetailCount(metricIdentifier).Should().Be(3);
+            EventMetricsCleaner.GetEventDetailCount(MetricNameType).Should().Be(3);
 
             timer.OnTimerCallback();
 
-            EventMetricsCleaner.GetEventDetailCount(metricIdentifier).Should().Be(0);
+            EventMetricsCleaner.GetEventDetailCount(MetricNameType).Should().Be(0);
 
             ResetCleaner();
         }
@@ -203,20 +203,19 @@ namespace Metrics.Tests.Reporting
 
             var reportIndex1 = EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
             var metric = new EventMetric();
-            registry.Event("test", () => { return metric; }, MetricTags.None);
-			var metricIdentifier = MetricIdentifier.Calculate("test.event", MetricTags.None.Tags);
+            registry.Event(MetricName, () => { return metric; }, MetricTags.None);
 
 			metric.Record();
             metric.Record();
             metric.Record();
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex1, new List<EventValueSource>());
 
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex1, metricIdentifier).Should().Be(0);
-            EventMetricsCleaner.GetEventDetailCount(metricIdentifier).Should().Be(3);
+            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex1, MetricNameType).Should().Be(0);
+            EventMetricsCleaner.GetEventDetailCount(MetricNameType).Should().Be(3);
 
             timer.OnTimerCallback();
 
-            EventMetricsCleaner.GetEventDetailCount(metricIdentifier).Should().Be(0);
+            EventMetricsCleaner.GetEventDetailCount(MetricNameType).Should().Be(0);
 
             ResetCleaner();
         }

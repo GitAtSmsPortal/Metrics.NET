@@ -110,6 +110,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Core\DefaultContextCustomMetricsTests.cs" />
+    <Compile Include="Core\MetricIdentifierTests.cs" />
     <Compile Include="Core\MetricTagsTests.cs" />
     <Compile Include="Endpoints\MetricsEndpointRequestTests.cs" />
     <Compile Include="Endpoints\MetricsEndpointResponseTests.cs" />
