@@ -48,8 +48,9 @@ namespace Metrics.Core
             }
 
             public TMetric GetOrAdd(string name, MetricTags tags, Func<Tuple<TMetric, TValue>> metricProvider)
-            {
-                return this.metrics.GetOrAdd(name, n =>
+			{
+				var key = MetricIdentifier.Calculate(name, tags.Tags);
+				return this.metrics.GetOrAdd(key, n =>
                 {
                     var result = metricProvider();
                     return new MetricMeta(result.Item1, result.Item2);
@@ -115,10 +116,11 @@ namespace Metrics.Core
             }
 
             public void Remove(string name, MetricTags tags)
-            {
-                MetricMeta m;
-                this.metrics.TryRemove(name, out m);
-                EventMetricsCleaner.RemoveEvent(name);
+			{
+				var key = MetricIdentifier.Calculate(name, tags.Tags);
+				MetricMeta m;
+                this.metrics.TryRemove(key, out m);
+                EventMetricsCleaner.RemoveEvent(key);
             }
         }
 
@@ -154,66 +156,66 @@ namespace Metrics.Core
 
         public void Gauge(string name, Func<MetricValueProvider<double>> valueProvider, Unit unit, MetricTags tags)
         {
-			var key = MetricIdentifier.Calculate(name + ".gauge", tags.Tags);
-			this.gauges.GetOrAdd(key, tags, () =>
+			name = name + ".gauge";
+			this.gauges.GetOrAdd(name, tags, () =>
             {
                 MetricValueProvider<double> gauge = valueProvider();
-                return Tuple.Create(gauge, new GaugeValueSource(key, gauge, unit, tags));
+                return Tuple.Create(gauge, new GaugeValueSource(name, gauge, unit, tags));
             });
         }
 
         public Counter Counter<T>(string name, Func<T> builder, Unit unit, MetricTags tags)
             where T : CounterImplementation
-        {
-			var key = MetricIdentifier.Calculate(name + ".counter", tags.Tags);
-			return this.counters.GetOrAdd(key, tags, () =>
+		{
+			name = name + ".counter";
+			return this.counters.GetOrAdd(name, tags, () =>
             {
                 T counter = builder();
-                return Tuple.Create((Counter)counter, new CounterValueSource(key, counter, unit, tags));
+                return Tuple.Create((Counter)counter, new CounterValueSource(name, counter, unit, tags));
             });
         }
 
         public Meter Meter<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, MetricTags tags)
             where T : MeterImplementation
-        {
-			var key = MetricIdentifier.Calculate(name + ".meter", tags.Tags);
-			return this.meters.GetOrAdd(key, tags, () =>
+		{
+			name = name + ".meter";
+			return this.meters.GetOrAdd(name, tags, () =>
             {
                 T meter = builder();
-                return Tuple.Create((Meter)meter, new MeterValueSource(key, meter, unit, rateUnit, tags));
+                return Tuple.Create((Meter)meter, new MeterValueSource(name, meter, unit, rateUnit, tags));
             });
         }
 
         public Histogram Histogram<T>(string name, Func<T> builder, Unit unit, MetricTags tags)
             where T : HistogramImplementation
-        {
-			var key = MetricIdentifier.Calculate(name + ".histogram", tags.Tags);
-			return this.histograms.GetOrAdd(key, tags, () =>
+		{
+			name = name + ".histogram";
+			return this.histograms.GetOrAdd(name, tags, () =>
             {
                 T histogram = builder();
-                return Tuple.Create((Histogram)histogram, new HistogramValueSource(key, histogram, unit, tags));
+                return Tuple.Create((Histogram)histogram, new HistogramValueSource(name, histogram, unit, tags));
             });
         }
 
         public Timer Timer<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, TimeUnit durationUnit, MetricTags tags)
             where T : TimerImplementation
-        {
-			var key = MetricIdentifier.Calculate(name + ".timer", tags.Tags);
-			return this.timers.GetOrAdd(key, tags, () =>
+		{
+			name = name + ".timer";
+			return this.timers.GetOrAdd(name, tags, () =>
             {
                 T timer = builder();
-                return Tuple.Create((Timer)timer, new TimerValueSource(key, timer, unit, rateUnit, durationUnit, tags));
+                return Tuple.Create((Timer)timer, new TimerValueSource(name, timer, unit, rateUnit, durationUnit, tags));
             });
         }
 
         public Event Event<T>(string name, Func<T> builder, MetricTags tags)
             where T : EventImplementation
-        {
-			var key = MetricIdentifier.Calculate(name + ".event", tags.Tags);
-			return this.events.GetOrAdd(key, tags, () =>
+		{
+			name = name + ".event";
+			return this.events.GetOrAdd(name, tags, () =>
             {
                 T evnt = builder();
-                return Tuple.Create((Event)evnt, new EventValueSource(key, evnt, tags));
+                return Tuple.Create((Event)evnt, new EventValueSource(name, evnt, tags));
             });
         }
 
@@ -239,38 +241,38 @@ namespace Metrics.Core
 
         public void DeregisterGauge(string name, MetricTags tags)
 		{
-			var key = MetricIdentifier.Calculate(name + ".gauge", tags.Tags);
-			this.gauges.Remove(key, tags);
+			name = name + ".gauge";
+			this.gauges.Remove(name, tags);
         }
 
         public void DeregisterMeter(string name, MetricTags tags)
 		{
-			var key = MetricIdentifier.Calculate(name + ".meter", tags.Tags);
-			this.meters.Remove(key, tags);
+			name = name + ".meter";
+			this.meters.Remove(name, tags);
         }
 
         public void DeregisterCounter(string name, MetricTags tags)
 		{
-			var key = MetricIdentifier.Calculate(name + ".counter", tags.Tags);
-			this.counters.Remove(key, tags);
+			name = name + ".counter";
+			this.counters.Remove(name, tags);
         }
 
         public void DeregisterHistogram(string name, MetricTags tags)
 		{
-			var key = MetricIdentifier.Calculate(name + ".histogram", tags.Tags);
-			this.histograms.Remove(key, tags);
+			name = name + ".histogram";
+			this.histograms.Remove(name, tags);
         }
 
         public void DeregisterTimer(string name, MetricTags tags)
 		{
-			var key = MetricIdentifier.Calculate(name + ".timer", tags.Tags);
-			this.timers.Remove(key, tags);
+			name = name + ".timer";
+			this.timers.Remove(name, tags);
         }
 
         public void DeregisterEvent(string name, MetricTags tags)
 		{
-			var key = MetricIdentifier.Calculate(name + ".event", tags.Tags);
-			this.events.Remove(key, tags);
+			name = name + ".event";
+			this.events.Remove(name, tags);
         }
     }
 }

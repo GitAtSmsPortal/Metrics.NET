@@ -16,7 +16,7 @@ namespace Metrics.Core
             var hash = 17;
             foreach (var tag in tags)
             {
-                hash = hash * prime + tag.GetHashCode();
+                hash = hash * prime + tag.Key.GetHashCode() + tag.Value.GetHashCode();
             }
             return hash;
         }
