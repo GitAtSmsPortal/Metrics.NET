@@ -17,11 +17,11 @@ namespace Metrics.Tests.Core
         [Fact]
         public void MetricTags_CanCreateFromKeyValuePairs()
         {
-            MetricTags tags = new[]{new KeyValuePair<string, string>("tag","value") };
-            tags.Tags.Should().Equal(new KeyValuePair<string, string>("tag", "value"));
+            var tempTags = new Dictionary<string,string>();
+            tempTags.Add("tag","value");
+            MetricTags tags = tempTags;
 
-            tags = new MetricTags(new KeyValuePair<string, string>("tag","value"));
-            tags.Tags.Should().Equal(new KeyValuePair<string, string>("tag", "value"));
+            tags.Tags.Should().Equal(tempTags);
         }
     }
 }

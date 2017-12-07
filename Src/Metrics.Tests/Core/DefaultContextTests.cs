@@ -140,17 +140,19 @@ namespace Metrics.Tests.Core
         [Fact]
         public void MetricsContext_CanPropagateValueTags()
         {
-            context.Counter("test", Unit.None, new KeyValuePair<string,string>("tag","value"));
-            context.DataProvider.CurrentMetricsData.Counters.Single().Tags.Should().Equal(new KeyValuePair<string, string> ("tag", "value"));
+            var tempTags = new Dictionary<string, string>();
+            tempTags.Add("tag", "value");
+            context.Counter("test", Unit.None, tempTags);
+            context.DataProvider.CurrentMetricsData.Counters.Single().Tags.Should().Equal(tempTags);
 
-            context.Meter("test", Unit.None, tags: new KeyValuePair<string, string>("tag", "value"));
-            context.DataProvider.CurrentMetricsData.Meters.Single().Tags.Should().Equal(new KeyValuePair<string, string>("tag", "value"));
+            context.Meter("test", Unit.None, tags: tempTags);
+            context.DataProvider.CurrentMetricsData.Meters.Single().Tags.Should().Equal(tempTags);
 
-            context.Histogram("test", Unit.None, tags: new KeyValuePair<string, string>("tag", "value"));
-            context.DataProvider.CurrentMetricsData.Histograms.Single().Tags.Should().Equal(new KeyValuePair<string, string>("tag", "value"));
+            context.Histogram("test", Unit.None, tags: tempTags);
+            context.DataProvider.CurrentMetricsData.Histograms.Single().Tags.Should().Equal(tempTags);
 
-            context.Timer("test", Unit.None, tags: new KeyValuePair<string, string>("tag", "value"));
-            context.DataProvider.CurrentMetricsData.Timers.Single().Tags.Should().Equal(new KeyValuePair<string, string>("tag", "value"));
+            context.Timer("test", Unit.None, tags: tempTags);
+            context.DataProvider.CurrentMetricsData.Timers.Single().Tags.Should().Equal(tempTags);
         }
     }
 }

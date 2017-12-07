@@ -8,21 +8,18 @@ namespace Metrics
     /// </summary>
     public struct MetricTags : Utils.IHideObjectMembers
     {
-        private static readonly KeyValuePair<string,string>[] empty = Enumerable.Empty<KeyValuePair<string, string>>().ToArray();
+        private static readonly Dictionary<string,string> empty = new Dictionary<string, string>();
 
-        public static readonly MetricTags None = new MetricTags(Enumerable.Empty<KeyValuePair<string, string>>());
+        public static readonly MetricTags None = new MetricTags();
 
-        private readonly KeyValuePair<string, string>[] tags;
+        private readonly Dictionary<string,string> tags;
 
-        public MetricTags(params KeyValuePair<string, string>[] tags)
+        public MetricTags(Dictionary<string, string> tags)
         {
-            this.tags = tags.ToArray();
+            this.tags = CleanTags(tags);
         }
 
-        public MetricTags(IEnumerable<KeyValuePair<string, string>> tags) : this(ToTags(tags).ToArray())
-        { }
-
-        public KeyValuePair<string, string>[] Tags
+        public Dictionary<string, string> Tags
         {
             get
             {
@@ -30,19 +27,14 @@ namespace Metrics
             }
         }
 
-        private static IEnumerable<KeyValuePair<string, string>> ToTags(IEnumerable<KeyValuePair<string, string>> tags)
+        private static Dictionary<string, string> CleanTags(Dictionary<string, string> tags)
         {
             return tags
                 .Where(t => !string.IsNullOrEmpty(t.Value) && !string.IsNullOrEmpty(t.Key))
-                .Select(tempTag => new KeyValuePair<string, string>(tempTag.Key.ToLowerInvariant(), tempTag.Value.ToLowerInvariant()));
+                .ToDictionary(kvp=>kvp.Key.ToLowerInvariant(), kvp=>kvp.Value.ToLowerInvariant());
         }
 
-        public static implicit operator MetricTags(KeyValuePair<string,string> tags)
-        {
-            return new MetricTags(tags);
-        }
-
-        public static implicit operator MetricTags(KeyValuePair<string,string>[] tags)
+        public static implicit operator MetricTags(Dictionary<string,string> tags)
         {
             return new MetricTags(tags);
         }

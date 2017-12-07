@@ -63,7 +63,7 @@ namespace Metrics.Tests.Json
 
         public JsonSerializationTests()
         {
-            var eventFields = new Dictionary<string, string>();
+            var eventFields = new Dictionary<string, object>();
             eventFields.Add("field", "value");
             eventFields.Add("abc", "123");
             eventValue = new EventValue(new List<EventDetails>

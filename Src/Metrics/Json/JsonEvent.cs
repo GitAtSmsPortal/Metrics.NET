@@ -34,7 +34,7 @@ namespace Metrics.Json
                 yield return new JsonProperty("Events", this.Events.Select(i => new JsonObject(ToJsonProperties(i))));
             }
 
-            if (this.Tags.Length > 0)
+            if (this.Tags.Count > 0)
             {
                 yield return new JsonProperty("Tags", this.Tags);
             }
@@ -46,8 +46,7 @@ namespace Metrics.Json
         {
             yield return new JsonProperty("Timestamp", item.Timestamp.ToString());
 
-            yield return new JsonProperty("Fields", item.Fields);
-
+            yield return new JsonProperty("Fields", item.Fields.ToDictionary(k=> (object)k.Key,kvp=> kvp.Value));
         }
 
         public EventValueSource ToValueSource()

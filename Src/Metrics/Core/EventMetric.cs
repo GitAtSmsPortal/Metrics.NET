@@ -36,18 +36,18 @@ namespace Metrics.Core
 
         public void Record(DateTime timestamp)
         {
-            Record(new List<KeyValuePair<string, string>>(), timestamp);
+            Record(new Dictionary<string, object>(), timestamp);
         }
 
-        public void Record(List<KeyValuePair<string, string>> fields)
+        public void Record(Dictionary<string, object> fields)
         {
             Record(fields, DateTime.UtcNow);
         }
 
-        public void Record(List<KeyValuePair<string, string>> fields, DateTime timestamp)
+        public void Record(Dictionary<string, object> fields, DateTime timestamp)
         {
-            var defaultFields = new List<KeyValuePair<string, string>>();
-            defaultFields.Add(new KeyValuePair<string, string>("timestamp", timestamp.ToString()));
+            var defaultFields = new Dictionary<string, object>();
+            defaultFields.Add("timestamp", timestamp.ToString());
 
             fields = fields.Count == 0 ? defaultFields : fields;
             this.events.Add(new EventDetails(fields.ToDictionary(k => k.Key, v => v.Value), timestamp));

@@ -32,7 +32,7 @@ namespace Metrics.Json
             yield return new JsonProperty("Value", this.Value.Value);
             yield return new JsonProperty("Unit", this.Unit);
 
-            if (this.Tags.Length > 0)
+            if (this.Tags.Count > 0)
             {
                 yield return new JsonProperty("Tags", this.Tags);
             }

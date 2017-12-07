@@ -34,14 +34,18 @@ namespace Metrics.Tests.Metrics
         [Fact]
         public void EventMetric_CanRecordWithFields()
         {
-            evnt.Record(new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("field", "0") });
+            var fields = new Dictionary<string, object>();
+            fields.Add("field", "0");
+            evnt.Record(fields);
             evnt.Value.Events.Count.Should().Be(1);
         }
 
         [Fact]
         public void EventMetric_CanRecordWithFieldsAndTimestamp()
         {
-            evnt.Record(new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("field", "0") }, DateTime.UtcNow);
+            var fields = new Dictionary<string, object>();
+            fields.Add("field", "0");
+            evnt.Record(fields, DateTime.UtcNow);
             evnt.Value.Events.Count.Should().Be(1);
         }
 

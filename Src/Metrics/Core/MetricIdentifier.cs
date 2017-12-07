@@ -10,7 +10,7 @@ namespace Metrics.Core
 			return name + GetHashCode(tags.Tags);
 		}
 
-		private static int GetHashCode(KeyValuePair<string, string>[] tags)
+		private static int GetHashCode(Dictionary<string, string> tags)
         {
             const int prime = 31;
             var hash = 17;

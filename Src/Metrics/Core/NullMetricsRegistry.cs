@@ -35,8 +35,8 @@ namespace Metrics.Core
 
             public void Record() { }
             public void Record(DateTime timestamp) { }
-            public void Record(List<KeyValuePair<string, string>> fields) { }
-            public void Record(List<KeyValuePair<string, string>> fields, DateTime timestamp) { }
+            public void Record(Dictionary<string, object> fields) { }
+            public void Record(Dictionary<string, object> fields, DateTime timestamp) { }
 
             public TimerContext NewContext(string userValue = null) { return NullContext; }
 

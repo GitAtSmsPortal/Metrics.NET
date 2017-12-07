@@ -12,6 +12,10 @@ namespace Metrics.Json
             : this(name, (JsonValue)new StringKeyValuePairArrayJsonValue(value))
         { }
 
+        public JsonProperty(string name, Dictionary<object, object> value)
+            : this(name, (JsonValue)new ObjectDictionaryJsonValue(value))
+        { }
+
         public JsonProperty(string name, IEnumerable<JsonProperty> properties)
             : this(name, new ObjectJsonValue(properties))
         { }

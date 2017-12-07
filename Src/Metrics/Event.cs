@@ -10,8 +10,8 @@ namespace Metrics
 
         void Record(DateTime timestamp);
 
-        void Record(List<KeyValuePair<string, string>> fields);
+        void Record(Dictionary<string, object> fields);
 
-        void Record(List<KeyValuePair<string, string>> fields, DateTime timestamp);
+        void Record(Dictionary<string, object> fields, DateTime timestamp);
     }
 }

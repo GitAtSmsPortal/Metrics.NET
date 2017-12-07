@@ -147,6 +147,21 @@ namespace Metrics.Json
         }
     }
 
+    public class ObjectDictionaryJsonValue : JsonValue
+    {
+        private readonly Dictionary<object,object> values;
+
+        public ObjectDictionaryJsonValue(Dictionary<object, object> values)
+        {
+            this.values = values;
+        }
+
+        public override string AsJson(bool indented = true, int indent = 0)
+        {
+            return "{" + string.Join(",", this.values.Select(v => new ObjectDictionaryItemJsonValue(v).AsJson(indented, indent))) + "}";
+        }
+    }
+
     public class StringKeyValuePairJsonValue : JsonValue
     {
         private readonly KeyValuePair<string, string> value;
@@ -159,6 +174,21 @@ namespace Metrics.Json
         public override string AsJson(bool indented = true, int indent = 0)
         {
             return "\"" + Escape(this.value.Key) + "\"" + ":" + "\"" + Escape(this.value.Value) + "\"";
+        }
+    }
+
+    public class ObjectDictionaryItemJsonValue : JsonValue
+    {
+        private readonly KeyValuePair<object, object> value;
+        
+        public ObjectDictionaryItemJsonValue(KeyValuePair<object, object> value)
+        {
+            this.value = value;
+        }
+
+        public override string AsJson(bool indented = true, int indent = 0)
+        {
+            return "\"" + Escape(this.value.Key.ToString()) + "\"" + ":" + "\"" + Escape(this.value.Value.ToString()) + "\"";
         }
     }
 
