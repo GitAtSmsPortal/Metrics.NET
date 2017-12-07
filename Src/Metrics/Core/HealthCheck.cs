@@ -5,40 +5,45 @@ namespace Metrics.Core
     public class HealthCheck
     {
         public struct Result
-        {
-            public readonly string Name;
-            public readonly HealthCheckResult Check;
+		{
+			public readonly string Name;
+			public readonly MetricTags Tags;
+			public readonly HealthCheckResult Check;
 
-            public Result(string name, HealthCheckResult check)
+            public Result(string name, HealthCheckResult check, MetricTags tags = default(MetricTags))
             {
                 this.Name = name;
                 this.Check = check;
+	            this.Tags = tags;
             }
         }
 
         private readonly Func<HealthCheckResult> check;
 
-        protected HealthCheck(string name)
-            : this(name, () => { })
+        protected HealthCheck(string name, MetricTags tags = default(MetricTags))
+            : this(name, () => { }, tags)
         { }
 
-        public HealthCheck(string name, Action check)
-            : this(name, () => { check(); return string.Empty; })
+        public HealthCheck(string name, Action check, MetricTags tags = default(MetricTags))
+            : this(name, () => { check(); return string.Empty; }, tags)
         { }
 
-        public HealthCheck(string name, Func<string> check)
-            : this(name, () => HealthCheckResult.Healthy(check()))
+        public HealthCheck(string name, Func<string> check, MetricTags tags = default(MetricTags))
+            : this(name, () => HealthCheckResult.Healthy(check()), tags)
         { }
 
-        public HealthCheck(string name, Func<HealthCheckResult> check)
+        public HealthCheck(string name, Func<HealthCheckResult> check, MetricTags tags = default(MetricTags))
         {
             this.Name = name;
             this.check = check;
+	        this.Tags = tags;
         }
 
-        public string Name { get; }
+		public string Name { get; }
 
-        protected virtual HealthCheckResult Check()
+		public MetricTags Tags { get; }
+
+		protected virtual HealthCheckResult Check()
         {
             return this.check();
         }
@@ -47,11 +52,11 @@ namespace Metrics.Core
         {
             try
             {
-                return new Result(this.Name, this.Check());
+                return new Result(this.Name, this.Check(), this.Tags);
             }
             catch (Exception x)
             {
-                return new Result(this.Name, HealthCheckResult.Unhealthy(x));
+                return new Result(this.Name, HealthCheckResult.Unhealthy(x), this.Tags);
             }
         }
     }

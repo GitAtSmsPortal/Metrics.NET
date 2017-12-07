@@ -5,7 +5,7 @@ namespace Metrics.MetricData
 {
     public class EventDetails
     {
-        public EventDetails(Dictionary<string, string> fields, DateTime timestamp)
+        public EventDetails(Dictionary<string, object> fields, DateTime timestamp)
         {
             Fields = fields;
             Timestamp = timestamp;
@@ -13,6 +13,6 @@ namespace Metrics.MetricData
 
         public DateTime Timestamp { get; private set; }
 
-        public Dictionary<string, string> Fields { get; private set; }
+        public Dictionary<string, object> Fields { get; private set; }
     }
 }

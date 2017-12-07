@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metrics", "Src\Metrics\Metrics.csproj", "{95E29D40-DBEC-49E2-9CC5-26B88966DADE}"
 EndProject
@@ -147,5 +147,8 @@ Global
 		{025CD6D0-1A1E-4B14-A7DB-AF5DFF887210} = {443860DA-6378-47D0-A4AE-4E79975C5E1C}
 		{1E8F49B4-B8D9-4932-909D-821AEFB869B0} = {2E004760-A644-4312-8489-6057B8B7554A}
 		{83F38EB9-504D-4B85-A181-7309EA08FAC2} = {DEC3A50A-7243-45C0-9995-F829BFF99453}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6F75B9C7-626D-4214-A407-7D66D19E435A}
 	EndGlobalSection
 EndGlobal

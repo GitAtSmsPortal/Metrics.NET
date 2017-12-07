@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Metrics
@@ -9,50 +8,33 @@ namespace Metrics
     /// </summary>
     public struct MetricTags : Utils.IHideObjectMembers
     {
-        private static readonly string[] empty = new string[0];
+        private static readonly Dictionary<string,string> empty = new Dictionary<string, string>();
 
-        public static readonly MetricTags None = new MetricTags(Enumerable.Empty<string>());
+        public static readonly MetricTags None = new MetricTags();
 
-        private readonly string[] tags;
+        private readonly Dictionary<string,string> tags;
 
-        public MetricTags(params string[] tags)
+        public MetricTags(Dictionary<string, string> tags)
         {
-            this.tags = tags.ToArray();
+            this.tags = CleanTags(tags);
         }
 
-        public MetricTags(IEnumerable<string> tags)
-            : this(tags.ToArray())
-        { }
-
-        public MetricTags(string commaSeparatedTags)
-            : this(ToTags(commaSeparatedTags))
-        { }
-
-        public string[] Tags
+        public Dictionary<string, string> Tags
         {
             get
             {
-                return tags ?? empty;
+                return this.tags ?? empty;
             }
         }
 
-        private static IEnumerable<string> ToTags(string commaSeparatedTags)
+        private static Dictionary<string, string> CleanTags(Dictionary<string, string> tags)
         {
-            if (string.IsNullOrWhiteSpace(commaSeparatedTags))
-            {
-                return Enumerable.Empty<string>();
-            }
-
-            return commaSeparatedTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(t => t.Trim().ToLowerInvariant());
+            return tags
+                .Where(t => !string.IsNullOrEmpty(t.Value) && !string.IsNullOrEmpty(t.Key))
+                .ToDictionary(kvp=>kvp.Key.ToLowerInvariant(), kvp=>kvp.Value.ToLowerInvariant());
         }
 
-        public static implicit operator MetricTags(string commaSeparatedTags)
-        {
-            return new MetricTags(commaSeparatedTags);
-        }
-
-        public static implicit operator MetricTags(string[] tags)
+        public static implicit operator MetricTags(Dictionary<string,string> tags)
         {
             return new MetricTags(tags);
         }

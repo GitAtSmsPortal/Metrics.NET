@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Metrics.MetricData;
@@ -36,7 +37,7 @@ namespace Metrics.Tests.Core
 
             var counterValue = CurrentData.ChildMetrics.SelectMany(c => c.Counters).Single();
 
-            counterValue.Name.Should().Be("counter");
+            counterValue.Name.Should().Be("counter.counter");
         }
 
         [Fact]
@@ -48,7 +49,7 @@ namespace Metrics.Tests.Core
 
             var counterValue = CurrentData.Counters.Single();
 
-            counterValue.Name.Should().Be("test");
+            counterValue.Name.Should().Be("test.counter");
             counterValue.Unit.Should().Be(Unit.Requests);
             counterValue.Value.Count.Should().Be(1);
         }
@@ -77,7 +78,7 @@ namespace Metrics.Tests.Core
             context.Counter("test", Unit.Bytes).Increment();
 
             provider.CurrentMetricsData.Counters.Should().HaveCount(1);
-            provider.CurrentMetricsData.Counters.Single().Name.Should().Be("test");
+            provider.CurrentMetricsData.Counters.Single().Name.Should().Be("test.counter");
             provider.CurrentMetricsData.Counters.Single().Value.Count.Should().Be(1L);
         }
 
@@ -107,7 +108,7 @@ namespace Metrics.Tests.Core
             context.Context("test").Counter("test", Unit.Bytes).Increment();
 
             CurrentData.ChildMetrics.Single()
-                .Counters.Single().Name.Should().Be("test");
+                .Counters.Single().Name.Should().Be("test.counter");
 
             context.ShutdownContext("test");
 
@@ -139,17 +140,19 @@ namespace Metrics.Tests.Core
         [Fact]
         public void MetricsContext_CanPropagateValueTags()
         {
-            context.Counter("test", Unit.None, "tag");
-            context.DataProvider.CurrentMetricsData.Counters.Single().Tags.Should().Equal(new[] { "tag" });
+            var tempTags = new Dictionary<string, string>();
+            tempTags.Add("tag", "value");
+            context.Counter("test", Unit.None, tempTags);
+            context.DataProvider.CurrentMetricsData.Counters.Single().Tags.Should().Equal(tempTags);
 
-            context.Meter("test", Unit.None, tags: "tag");
-            context.DataProvider.CurrentMetricsData.Meters.Single().Tags.Should().Equal(new[] { "tag" });
+            context.Meter("test", Unit.None, tags: tempTags);
+            context.DataProvider.CurrentMetricsData.Meters.Single().Tags.Should().Equal(tempTags);
 
-            context.Histogram("test", Unit.None, tags: "tag");
-            context.DataProvider.CurrentMetricsData.Histograms.Single().Tags.Should().Equal(new[] { "tag" });
+            context.Histogram("test", Unit.None, tags: tempTags);
+            context.DataProvider.CurrentMetricsData.Histograms.Single().Tags.Should().Equal(tempTags);
 
-            context.Timer("test", Unit.None, tags: "tag");
-            context.DataProvider.CurrentMetricsData.Timers.Single().Tags.Should().Equal(new[] { "tag" });
+            context.Timer("test", Unit.None, tags: tempTags);
+            context.DataProvider.CurrentMetricsData.Timers.Single().Tags.Should().Equal(tempTags);
         }
     }
 }

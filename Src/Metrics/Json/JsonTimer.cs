@@ -123,7 +123,7 @@ namespace Metrics.Json
             yield return new JsonProperty("RateUnit", this.RateUnit);
             yield return new JsonProperty("DurationUnit", this.DurationUnit);
 
-            if (this.Tags.Length > 0)
+            if (this.Tags.Count > 0)
             {
                 yield return new JsonProperty("Tags", this.Tags);
             }
