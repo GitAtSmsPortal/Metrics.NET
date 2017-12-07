@@ -82,7 +82,7 @@ namespace Metrics.Core
                         var src = metricMeta.Value as EventValueSource;
                         if (src != null)
                         {
-                            src.Value.Events.RemoveRange(startIndex, count);
+                            src.Value.Events.RemoveRange(startIndex, src.Value.Events.Count < count ? src.Value.Events.Count : count);
                         }
                     }
                 }
