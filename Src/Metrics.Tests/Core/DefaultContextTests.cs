@@ -37,7 +37,7 @@ namespace Metrics.Tests.Core
 
             var counterValue = CurrentData.ChildMetrics.SelectMany(c => c.Counters).Single();
 
-            counterValue.Name.Should().Be("counter");
+            counterValue.Name.Should().Be("counter.counter");
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace Metrics.Tests.Core
 
             var counterValue = CurrentData.Counters.Single();
 
-            counterValue.Name.Should().Be("test");
+            counterValue.Name.Should().Be("test.counter");
             counterValue.Unit.Should().Be(Unit.Requests);
             counterValue.Value.Count.Should().Be(1);
         }
@@ -78,7 +78,7 @@ namespace Metrics.Tests.Core
             context.Counter("test", Unit.Bytes).Increment();
 
             provider.CurrentMetricsData.Counters.Should().HaveCount(1);
-            provider.CurrentMetricsData.Counters.Single().Name.Should().Be("test");
+            provider.CurrentMetricsData.Counters.Single().Name.Should().Be("test.counter");
             provider.CurrentMetricsData.Counters.Single().Value.Count.Should().Be(1L);
         }
 
@@ -108,7 +108,7 @@ namespace Metrics.Tests.Core
             context.Context("test").Counter("test", Unit.Bytes).Increment();
 
             CurrentData.ChildMetrics.Single()
-                .Counters.Single().Name.Should().Be("test");
+                .Counters.Single().Name.Should().Be("test.counter");
 
             context.ShutdownContext("test");
 
