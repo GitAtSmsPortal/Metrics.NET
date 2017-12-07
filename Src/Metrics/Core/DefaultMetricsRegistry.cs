@@ -48,9 +48,9 @@ namespace Metrics.Core
             }
 
             public TMetric GetOrAdd(string name, MetricTags tags, Func<Tuple<TMetric, TValue>> metricProvider)
-			{
-				var key = MetricIdentifier.Calculate(name, tags.Tags);
-				return this.metrics.GetOrAdd(key, n =>
+            {
+                var key = MetricIdentifier.Calculate(name, tags.Tags);
+                return this.metrics.GetOrAdd(key, n =>
                 {
                     var result = metricProvider();
                     return new MetricMeta(result.Item1, result.Item2);
@@ -101,7 +101,7 @@ namespace Metrics.Core
                         }
                     }
                 }
-            }
+            }    
 
             public void Reset()
             {
@@ -116,9 +116,9 @@ namespace Metrics.Core
             }
 
             public void Remove(string name, MetricTags tags)
-			{
-				var key = MetricIdentifier.Calculate(name, tags.Tags);
-				MetricMeta m;
+            {
+                var key = MetricIdentifier.Calculate(name, tags.Tags);
+                MetricMeta m;
                 this.metrics.TryRemove(key, out m);
                 EventMetricsCleaner.RemoveEvent(key);
             }
@@ -156,8 +156,8 @@ namespace Metrics.Core
 
         public void Gauge(string name, Func<MetricValueProvider<double>> valueProvider, Unit unit, MetricTags tags)
         {
-			name = name + ".gauge";
-			this.gauges.GetOrAdd(name, tags, () =>
+            name = name + ".gauge";
+            this.gauges.GetOrAdd(name, tags, () =>
             {
                 MetricValueProvider<double> gauge = valueProvider();
                 return Tuple.Create(gauge, new GaugeValueSource(name, gauge, unit, tags));
@@ -166,9 +166,9 @@ namespace Metrics.Core
 
         public Counter Counter<T>(string name, Func<T> builder, Unit unit, MetricTags tags)
             where T : CounterImplementation
-		{
-			name = name + ".counter";
-			return this.counters.GetOrAdd(name, tags, () =>
+        {
+            name = name + ".counter";
+            return this.counters.GetOrAdd(name, tags, () =>
             {
                 T counter = builder();
                 return Tuple.Create((Counter)counter, new CounterValueSource(name, counter, unit, tags));
@@ -177,9 +177,9 @@ namespace Metrics.Core
 
         public Meter Meter<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, MetricTags tags)
             where T : MeterImplementation
-		{
-			name = name + ".meter";
-			return this.meters.GetOrAdd(name, tags, () =>
+        {
+            name = name + ".meter";
+            return this.meters.GetOrAdd(name, tags, () =>
             {
                 T meter = builder();
                 return Tuple.Create((Meter)meter, new MeterValueSource(name, meter, unit, rateUnit, tags));
@@ -188,9 +188,9 @@ namespace Metrics.Core
 
         public Histogram Histogram<T>(string name, Func<T> builder, Unit unit, MetricTags tags)
             where T : HistogramImplementation
-		{
-			name = name + ".histogram";
-			return this.histograms.GetOrAdd(name, tags, () =>
+        {
+            name = name + ".histogram";
+            return this.histograms.GetOrAdd(name, tags, () =>
             {
                 T histogram = builder();
                 return Tuple.Create((Histogram)histogram, new HistogramValueSource(name, histogram, unit, tags));
@@ -199,9 +199,9 @@ namespace Metrics.Core
 
         public Timer Timer<T>(string name, Func<T> builder, Unit unit, TimeUnit rateUnit, TimeUnit durationUnit, MetricTags tags)
             where T : TimerImplementation
-		{
-			name = name + ".timer";
-			return this.timers.GetOrAdd(name, tags, () =>
+        {
+            name = name + ".timer";
+            return this.timers.GetOrAdd(name, tags, () =>
             {
                 T timer = builder();
                 return Tuple.Create((Timer)timer, new TimerValueSource(name, timer, unit, rateUnit, durationUnit, tags));
@@ -210,9 +210,9 @@ namespace Metrics.Core
 
         public Event Event<T>(string name, Func<T> builder, MetricTags tags)
             where T : EventImplementation
-		{
-			name = name + ".event";
-			return this.events.GetOrAdd(name, tags, () =>
+        {
+            name = name + ".event";
+            return this.events.GetOrAdd(name, tags, () =>
             {
                 T evnt = builder();
                 return Tuple.Create((Event)evnt, new EventValueSource(name, evnt, tags));
@@ -240,39 +240,39 @@ namespace Metrics.Core
         }
 
         public void DeregisterGauge(string name, MetricTags tags)
-		{
-			name = name + ".gauge";
-			this.gauges.Remove(name, tags);
+        {
+            name = name + ".gauge";
+            this.gauges.Remove(name, tags);
         }
 
         public void DeregisterMeter(string name, MetricTags tags)
-		{
-			name = name + ".meter";
-			this.meters.Remove(name, tags);
+        {
+            name = name + ".meter";
+            this.meters.Remove(name, tags);
         }
 
         public void DeregisterCounter(string name, MetricTags tags)
-		{
-			name = name + ".counter";
-			this.counters.Remove(name, tags);
+        {
+            name = name + ".counter";
+            this.counters.Remove(name, tags);
         }
 
         public void DeregisterHistogram(string name, MetricTags tags)
-		{
-			name = name + ".histogram";
-			this.histograms.Remove(name, tags);
+        {
+            name = name + ".histogram";
+            this.histograms.Remove(name, tags);
         }
 
         public void DeregisterTimer(string name, MetricTags tags)
-		{
-			name = name + ".timer";
-			this.timers.Remove(name, tags);
+        {
+            name = name + ".timer";
+            this.timers.Remove(name, tags);
         }
 
         public void DeregisterEvent(string name, MetricTags tags)
-		{
-			name = name + ".event";
-			this.events.Remove(name, tags);
+        {
+            name = name + ".event";
+            this.events.Remove(name, tags);
         }
     }
 }
