@@ -9,17 +9,17 @@ namespace Metrics.Core
     public sealed class EventMetric : EventImplementation
     {
         private readonly List<EventDetails> events = new List<EventDetails>();
-		private readonly object locker = new object();
+        private readonly object locker = new object();
 
         public EventValue Value
         {
             get
-			{
-				lock (locker)
-				{
-					return new EventValue(this.events);
-				}
-			}
+            {
+                lock (locker)
+                {
+                    return new EventValue(this.events);
+                }
+            }
         }
 
         public EventValue GetValue(bool resetMetric = false)
@@ -48,24 +48,24 @@ namespace Metrics.Core
         }
 
         public void Record(Dictionary<string, object> fields, DateTime timestamp)
-		{
-			if (fields.Count == 0)
-			{
-				fields.Add("timestamp", timestamp.ToString());
-			}
+        {
+            if (fields.Count == 0)
+            {
+                fields.Add("timestamp", timestamp.ToString());
+            }
 
-			lock (locker)
-	        {
-				this.events.Add(new EventDetails(fields, timestamp));
-			}
+            lock (locker)
+            {
+                this.events.Add(new EventDetails(fields, timestamp));
+            }
         }
 
         public void Reset()
-		{
-	        lock (locker)
-	        {
-		        this.events.Clear();
-	        }
-		}
+        {
+            lock (locker)
+            {
+                this.events.Clear();
+            }
+        }
     }
 }

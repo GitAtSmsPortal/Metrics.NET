@@ -5,16 +5,16 @@ namespace Metrics.Core
     public class HealthCheck
     {
         public struct Result
-		{
-			public readonly string Name;
-			public readonly MetricTags Tags;
-			public readonly HealthCheckResult Check;
+        {
+            public readonly string Name;
+            public readonly MetricTags Tags;
+            public readonly HealthCheckResult Check;
 
             public Result(string name, HealthCheckResult check, MetricTags tags = default(MetricTags))
             {
                 this.Name = name;
                 this.Check = check;
-	            this.Tags = tags;
+                this.Tags = tags;
             }
         }
 
@@ -36,14 +36,14 @@ namespace Metrics.Core
         {
             this.Name = name;
             this.check = check;
-	        this.Tags = tags;
+            this.Tags = tags;
         }
 
-		public string Name { get; }
+        public string Name { get; }
 
-		public MetricTags Tags { get; }
+        public MetricTags Tags { get; }
 
-		protected virtual HealthCheckResult Check()
+        protected virtual HealthCheckResult Check()
         {
             return this.check();
         }
