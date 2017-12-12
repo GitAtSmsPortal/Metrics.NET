@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Metrics.MetricData;
 
 namespace Metrics.Core
@@ -10,13 +9,17 @@ namespace Metrics.Core
     public sealed class EventMetric : EventImplementation
     {
         private readonly List<EventDetails> events = new List<EventDetails>();
+		private readonly object locker = new object();
 
         public EventValue Value
         {
             get
-            {
-                return new EventValue(this.events);
-            }
+			{
+				lock (locker)
+				{
+					return new EventValue(this.events);
+				}
+			}
         }
 
         public EventValue GetValue(bool resetMetric = false)
@@ -45,17 +48,24 @@ namespace Metrics.Core
         }
 
         public void Record(Dictionary<string, object> fields, DateTime timestamp)
-        {
-            var defaultFields = new Dictionary<string, object>();
-            defaultFields.Add("timestamp", timestamp.ToString());
+		{
+			if (fields.Count == 0)
+			{
+				fields.Add("timestamp", timestamp.ToString());
+			}
 
-            fields = fields.Count == 0 ? defaultFields : fields;
-            this.events.Add(new EventDetails(fields.ToDictionary(k => k.Key, v => v.Value), timestamp));
+			lock (locker)
+	        {
+				this.events.Add(new EventDetails(fields, timestamp));
+			}
         }
 
         public void Reset()
-        {
-            this.events.Clear();
-        }
+		{
+	        lock (locker)
+	        {
+		        this.events.Clear();
+	        }
+		}
     }
 }
