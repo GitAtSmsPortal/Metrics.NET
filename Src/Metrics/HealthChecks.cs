@@ -79,15 +79,15 @@ namespace Metrics
         /// <param name="healthCheck">Custom health check to register.</param>
         public static void RegisterHealthCheck(HealthCheck healthCheck)
         {
-	        var name = MetricIdentifier.Calculate(healthCheck.Name, healthCheck.Tags);
+            var name = MetricIdentifier.Calculate(healthCheck.Name, healthCheck.Tags);
             checks.AddOrUpdate(name, healthCheck, (key, old) => healthCheck);
         }
 
         public static void UnregisterHealthCheck(string healthCheckName, MetricTags tags = default(MetricTags))
         {
             HealthCheck healthCheck;
-			var name = MetricIdentifier.Calculate(healthCheckName, tags);
-			checks.TryRemove(name, out healthCheck);
+            var name = MetricIdentifier.Calculate(healthCheckName, tags);
+            checks.TryRemove(name, out healthCheck);
         }
 
         /// <summary>
