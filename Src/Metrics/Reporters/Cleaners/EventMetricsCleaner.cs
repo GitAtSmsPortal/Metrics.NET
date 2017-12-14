@@ -37,7 +37,23 @@ namespace Metrics.Reporters.Cleaners
         /// <summary>
         /// The MetricsRegistry.
         /// </summary>
-        public static MetricsRegistry Registry { get; set; }
+        private static readonly Dictionary<string, MetricsRegistry> contextRegistries = new Dictionary<string, MetricsRegistry>();
+
+        public static void AddRegistry(string contextName, MetricsRegistry registry)
+        {
+            if (!contextRegistries.ContainsKey(contextName))
+            {
+                contextRegistries.Add(contextName, registry);
+            }
+        }
+
+        public static void RemoveRegistry(string contextName)
+        {
+            if (contextRegistries.ContainsKey(contextName))
+            {
+                contextRegistries.Remove(contextName);
+            }
+        }
 
         static EventMetricsCleaner()
         {
@@ -116,10 +132,16 @@ namespace Metrics.Reporters.Cleaners
         /// </summary>
         /// <param name="eventMetricIdentifier">The unique identifier for the event.</param>
         /// <returns>The total number of EventDetail items for the event.</returns>
-        public static int GetEventDetailCount(string eventMetricIdentifier)
+        public static Dictionary<string, int> GetRegistryEventDetailCounts(string eventMetricIdentifier)
         {
-            var eventCount = Registry.DataProvider.Events.FirstOrDefault(e => e.Name == eventMetricIdentifier);
-            return eventCount?.Value.EventsCopy.Count ?? 0;
+            var registryCounts = new Dictionary<string, int>();
+            foreach (var kvp in contextRegistries)
+            {
+                var registry = kvp.Value;
+                var eventCount = registry.DataProvider.Events.FirstOrDefault(e => e.Name == eventMetricIdentifier);
+                registryCounts.Add(kvp.Key, eventCount?.Value.EventsCopy.Count ?? 0);
+            }
+            return registryCounts;
         }
 
         /// <summary>
@@ -182,6 +204,7 @@ namespace Metrics.Reporters.Cleaners
         public static void Clear()
         {
             reportEventCounts.Clear();
+            contextRegistries.Clear();
         }
 
         /// <summary>
@@ -216,57 +239,61 @@ namespace Metrics.Reporters.Cleaners
         /// </summary>
         public static void Clean()
         {
-            if (Registry != null)
+            foreach (var kvp in contextRegistries)
             {
-                if (reportEventCounts.Count == 0)
+                var registry = kvp.Value;
+                if (registry != null)
                 {
-                    Registry.ClearEventValues();
-                    return;
-                }
-
-                var eventMetricIdentifiers = new HashSet<string>();
-                var lowestNumEventsReported = new Dictionary<string, int>();
-                foreach (var eventCounts in reportEventCounts)
-                {
-                    foreach (var eventCount in eventCounts)
+                    if (reportEventCounts.Count == 0)
                     {
-                        var eventMetricId = eventCount.EventMetricIdentifier;
-                        var totalEventsReported = eventCount.TotalEventsReported;
-                        
-                        if (totalEventsReported == 0)
-                        {
-                            // The cleaner runs after all reports have run, therefore if a report has reported an event, 
-                            // the count will always be greater than zero for that report for the event.
-                            // Otherwise the reporter has filtered out those event metrics and will never report their associated EventDetail items.
-                            // So we ignore the count if it is equal to zero as we know the report will not report the event and to ensure the 
-                            // calculation for finding the least number of EventDetail items that have been reported will be correct.
-                            continue;
-                        }
+                        registry.ClearEventValues();
+                        return;
+                    }
 
-                        eventMetricIdentifiers.Add(eventMetricId);
-                        if (lowestNumEventsReported.ContainsKey(eventMetricId))
+                    var eventMetricIdentifiers = new HashSet<string>();
+                    var lowestNumEventsReported = new Dictionary<string, int>();
+                    foreach (var eventCounts in reportEventCounts)
+                    {
+                        foreach (var eventCount in eventCounts)
                         {
-                            if (totalEventsReported < lowestNumEventsReported[eventMetricId])
+                            var eventMetricId = eventCount.EventMetricIdentifier;
+                            var totalEventsReported = eventCount.TotalEventsReported;
+
+                            if (totalEventsReported == 0)
                             {
-                                lowestNumEventsReported[eventMetricId] = totalEventsReported;
+                                // The cleaner runs after all reports have run, therefore if a report has reported an event, 
+                                // the count will always be greater than zero for that report for the event.
+                                // Otherwise the reporter has filtered out those event metrics and will never report their associated EventDetail items.
+                                // So we ignore the count if it is equal to zero as we know the report will not report the event and to ensure the 
+                                // calculation for finding the least number of EventDetail items that have been reported will be correct.
+                                continue;
+                            }
+
+                            eventMetricIdentifiers.Add(eventMetricId);
+                            if (lowestNumEventsReported.ContainsKey(eventMetricId))
+                            {
+                                if (totalEventsReported < lowestNumEventsReported[eventMetricId])
+                                {
+                                    lowestNumEventsReported[eventMetricId] = totalEventsReported;
+                                }
+                            }
+                            else
+                            {
+                                lowestNumEventsReported.Add(eventMetricId, totalEventsReported);
                             }
                         }
-                        else
-                        {
-                            lowestNumEventsReported.Add(eventMetricId, totalEventsReported);
-                        }
                     }
-                }
 
-                if (eventMetricIdentifiers.Count == 0)
-                {
-                    Registry.ClearEventValues();
-                    return;
-                }
+                    if (eventMetricIdentifiers.Count == 0)
+                    {
+                        registry.ClearEventValues();
+                        return;
+                    }
 
-                foreach (var eventMetricId in eventMetricIdentifiers)
-                {
-                    Registry.EventValuesRemoveRange(eventMetricId, 0, lowestNumEventsReported[eventMetricId]);
+                    foreach (var eventMetricId in eventMetricIdentifiers)
+                    {
+                        registry.EventValuesRemoveRange(eventMetricId, 0, lowestNumEventsReported[eventMetricId]);
+                    }
                 }
             }
         }
