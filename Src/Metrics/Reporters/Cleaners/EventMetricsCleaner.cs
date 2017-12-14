@@ -9,55 +9,26 @@ namespace Metrics.Reporters.Cleaners
 {
     public static class EventMetricsCleaner
     {
-        private class EventCount
-        {
-            /// <summary>
-            /// The unique identifier for the event metric.
-            /// </summary>
-            public string EventMetricIdentifier { get; set; }
-
-            /// <summary>
-            /// The total <c>EventDetail</c> items that have been reported for the event metric.
-            /// </summary>
-            public int TotalEventsReported { get; set; }
-        }
-
-        /// <summary>
-        /// Collection of events and the total number of associated <c>EventDetail</c> items that have reported.
-        /// </summary>
-        private class ReportEventCounts : List<HashSet<EventCount>> { }
-        
         private static readonly TimeSpan cleanIntervalBuffer = new TimeSpan(0, 0, 0, 5);
-        private static readonly ReportEventCounts reportEventCounts;
         private static readonly ThreadingTimer timer;
         private static bool timerIsDisposed = false;
         private static ITimer testTimer;
         private static TimeSpan curInterval;
 
         /// <summary>
-        /// The MetricsRegistry.
+        /// Collection of reports and their respective counts associated with the events thay have reported.
         /// </summary>
-        private static readonly Dictionary<string, MetricsRegistry> contextRegistries = new Dictionary<string, MetricsRegistry>();
+        public static readonly ReportEventCounts ReportEvntCounts;
 
-        public static void AddRegistry(string contextName, MetricsRegistry registry)
-        {
-            if (!contextRegistries.ContainsKey(contextName))
-            {
-                contextRegistries.Add(contextName, registry);
-            }
-        }
-
-        public static void RemoveRegistry(string contextName)
-        {
-            if (contextRegistries.ContainsKey(contextName))
-            {
-                contextRegistries.Remove(contextName);
-            }
-        }
+        /// <summary>
+        /// Collection of MetricsRegistry objects related to their contexts.
+        /// </summary>
+        public static ContextRegistriesWrapper ContextRegistries;
 
         static EventMetricsCleaner()
         {
-            reportEventCounts = new ReportEventCounts();
+            ReportEvntCounts = new ReportEventCounts();
+            ContextRegistries = new ContextRegistriesWrapper();
             curInterval = cleanIntervalBuffer;
 
             timer = new ThreadingTimer(null, curInterval, curInterval);
@@ -90,7 +61,7 @@ namespace Metrics.Reporters.Cleaners
         {
             get
             {
-                return reportEventCounts.Count;
+                return ReportEvntCounts.Count;
             }
         }
 
@@ -103,45 +74,6 @@ namespace Metrics.Reporters.Cleaners
             {
                 return curInterval.TotalSeconds;
             }
-        }
-
-        /// <summary>
-        /// The total number of event metrics that have been reported.
-        /// </summary>
-        /// <param name="reportIdentifier">The unique identifier for a report.</param>
-        /// <returns>The total number of events.</returns>
-        public static int GetReportsEventCount(int reportIdentifier)
-        {
-            return reportEventCounts[reportIdentifier].Count;
-        }
-
-        /// <summary>
-        /// The total number of EventDetail items for an event that have been reported for the report.
-        /// </summary>
-        /// <param name="reportIdentifier">The unique identifier for a report.</param>
-        /// <param name="eventMetricIdentifier">The unique identifier for the event.</param>
-        /// <returns>The total number of EventDetail items reported.</returns>
-        public static int GetReportsReportedEventDetailCount(int reportIdentifier, string eventMetricIdentifier)
-        {
-            var eventCount = reportEventCounts[reportIdentifier].FirstOrDefault(e => e.EventMetricIdentifier == eventMetricIdentifier);
-            return eventCount?.TotalEventsReported ?? 0;
-        }
-
-        /// <summary>
-        /// The total number of EventDetail items for an event.
-        /// </summary>
-        /// <param name="eventMetricIdentifier">The unique identifier for the event.</param>
-        /// <returns>The total number of EventDetail items for the event.</returns>
-        public static Dictionary<string, int> GetRegistryEventDetailCounts(string eventMetricIdentifier)
-        {
-            var registryCounts = new Dictionary<string, int>();
-            foreach (var kvp in contextRegistries)
-            {
-                var registry = kvp.Value;
-                var eventCount = registry.DataProvider.Events.FirstOrDefault(e => e.Name == eventMetricIdentifier);
-                registryCounts.Add(kvp.Key, eventCount?.Value.EventsCopy.Count ?? 0);
-            }
-            return registryCounts;
         }
 
         /// <summary>
@@ -162,8 +94,8 @@ namespace Metrics.Reporters.Cleaners
                 }
             }
 
-            reportEventCounts.Add(new HashSet<EventCount>());
-            return reportEventCounts.Count - 1;
+            ReportEvntCounts.Add(new HashSet<EventCount>());
+            return ReportEvntCounts.Count - 1;
         }
 
         /// <summary>
@@ -173,13 +105,13 @@ namespace Metrics.Reporters.Cleaners
         /// <param name="events">The events reported by the reporter.</param>
         public static void UpdateTotalReportedEvents(int reportIdentifier, IEnumerable<EventValueSource> events)
         {
-            if (reportIdentifier >= 0 && reportIdentifier < reportEventCounts.Count)
+            if (reportIdentifier >= 0 && reportIdentifier < ReportEvntCounts.Count)
             {
                 foreach (var evntSrc in events)
                 {
                     var count = evntSrc.Value.EventsCopy.Count;
                     var eventMetricId = MetricIdentifier.Calculate(evntSrc.Name, evntSrc.Tags);
-                    var report = reportEventCounts[reportIdentifier];
+                    var report = ReportEvntCounts[reportIdentifier];
 
                     var eventCount = report.FirstOrDefault(e => e.EventMetricIdentifier == eventMetricId);
                     if (eventCount != null)
@@ -196,15 +128,6 @@ namespace Metrics.Reporters.Cleaners
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Clear all reports from the cleaner.
-        /// </summary>
-        public static void Clear()
-        {
-            reportEventCounts.Clear();
-            contextRegistries.Clear();
         }
 
         /// <summary>
@@ -225,7 +148,7 @@ namespace Metrics.Reporters.Cleaners
         /// <param name="eventMetricIdentifier">The unique identifier for the event to remove.</param>
         public static void RemoveEvent(string eventMetricIdentifier)
         {
-            foreach (var eventCount in reportEventCounts)
+            foreach (var eventCount in ReportEvntCounts)
             {
                 if (!string.IsNullOrWhiteSpace(eventMetricIdentifier))
                 { 
@@ -239,12 +162,12 @@ namespace Metrics.Reporters.Cleaners
         /// </summary>
         public static void Clean()
         {
-            foreach (var kvp in contextRegistries)
+            foreach (var kvp in ContextRegistries.Values)
             {
                 var registry = kvp.Value;
                 if (registry != null)
                 {
-                    if (reportEventCounts.Count == 0)
+                    if (ReportEvntCounts.Count == 0)
                     {
                         registry.ClearEventValues();
                         return;
@@ -252,7 +175,7 @@ namespace Metrics.Reporters.Cleaners
 
                     var eventMetricIdentifiers = new HashSet<string>();
                     var lowestNumEventsReported = new Dictionary<string, int>();
-                    foreach (var eventCounts in reportEventCounts)
+                    foreach (var eventCounts in ReportEvntCounts)
                     {
                         foreach (var eventCount in eventCounts)
                         {
@@ -296,6 +219,71 @@ namespace Metrics.Reporters.Cleaners
                     }
                 }
             }
+        }
+    }
+
+    public class EventCount
+    {
+        /// <summary>
+        /// The unique identifier for the event metric.
+        /// </summary>
+        public string EventMetricIdentifier { get; set; }
+
+        /// <summary>
+        /// The total <c>EventDetail</c> items that have been reported for the event metric.
+        /// </summary>
+        public int TotalEventsReported { get; set; }
+    }
+
+    /// <summary>
+    /// Collection of events and the total number of associated <c>EventDetail</c> items that have reported.
+    /// </summary>
+    public class ReportEventCounts : List<HashSet<EventCount>> { }
+
+    /// <summary>
+    /// Collection of MetricsRegistry objects related to their contexts.
+    /// </summary>
+    public class ContextRegistriesWrapper
+    {
+        private readonly Dictionary<string, MetricsRegistry> cntxtRegistry;
+
+        public Dictionary<string, MetricsRegistry> Values
+        {
+            get
+            {
+                var tmp = new Dictionary<string, MetricsRegistry>();
+                foreach (var kvp in this.cntxtRegistry)
+                {
+                    tmp.Add(kvp.Key, kvp.Value);
+                }
+                return tmp;
+            }
+        }
+
+        public ContextRegistriesWrapper()
+        {
+            this.cntxtRegistry = new Dictionary<string, MetricsRegistry>();
+        }
+
+        public void Add(string contextName, MetricsRegistry registry)
+        {
+            if (!this.cntxtRegistry.ContainsKey(contextName))
+            {
+                this.cntxtRegistry.Add(contextName, registry);
+            }
+        }
+
+        public void Remove(string contextName)
+        {
+            if (this.cntxtRegistry.ContainsKey(contextName))
+            {
+                this.cntxtRegistry.Remove(contextName);
+            }
+        }
+
+        public void Clear()
+        {
+            this.cntxtRegistry.Clear();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Metrics.Core;
 using Metrics.MetricData;
@@ -18,49 +19,54 @@ namespace Metrics.Tests.Reporting
 
         public void ResetCleaner()
         {
-            EventMetricsCleaner.Clear();
+            EventMetricsCleaner.ContextRegistries.Clear();
+            EventMetricsCleaner.ReportEvntCounts.Clear();
             EventMetricsCleaner.ResetInterval();
         }
 
         [Fact]
         public void StartsWithZeroReports()
         {
+            ResetCleaner();
+
             EventMetricsCleaner.TotalReports.Should().Be(0);
         }
 
         [Fact]
         public void DefaultIntervalIsGreaterThanZero()
         {
-            EventMetricsCleaner.CurrentIntervalSeconds.Should().BeGreaterThan(0);
-
             ResetCleaner();
+
+            EventMetricsCleaner.CurrentIntervalSeconds.Should().BeGreaterThan(0);
         }
 
         [Fact]
         public void RegisterReport_IncrementsReportCount()
         {
+            ResetCleaner();
+
             EventMetricsCleaner.RegisterReport(new TimeSpan(0));
 
             EventMetricsCleaner.TotalReports.Should().Be(1);
-
-            ResetCleaner();
         }
 
         [Fact]
         public void RegisterReport_UpdatesCleanerInterval()
         {
+            ResetCleaner();
+
             EventMetricsCleaner.CurrentIntervalSeconds.Should().Be(5);
 
             EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 60));
 
             EventMetricsCleaner.CurrentIntervalSeconds.Should().Be(65);
-
-            ResetCleaner();
         }
 
         [Fact]
         public void RegisterMultipleReports_UpdatesCleanerInterval_UsingLargestReportInverval()
         {
+            ResetCleaner();
+
             EventMetricsCleaner.CurrentIntervalSeconds.Should().Be(5);
 
             EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 3));
@@ -68,27 +74,27 @@ namespace Metrics.Tests.Reporting
             EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 2));
 
             EventMetricsCleaner.CurrentIntervalSeconds.Should().Be(13);
-
-            ResetCleaner();
         }
 
         [Fact]
         public void Update_RegistersEventAssociatedWithReport()
         {
+            ResetCleaner();
+
             var registry = new DefaultMetricsRegistry();
             registry.Event(MetricName, () => { return new EventMetric(); }, MetricTags.None);
             var reportIndex = EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
 
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex, registry.DataProvider.Events);
 
-            EventMetricsCleaner.GetReportsEventCount(reportIndex).Should().Be(1);
-
-            ResetCleaner();
+            GetReportsEventCount(reportIndex).Should().Be(1);
         }
 
         [Fact]
         public void RemoveEvent_RemovesEventFromAllReports()
         {
+            ResetCleaner();
+
             var registry = new DefaultMetricsRegistry();
             registry.Event(MetricName, () => { return new EventMetric(); }, MetricTags.None);
             var reportIndex1 = EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
@@ -98,30 +104,18 @@ namespace Metrics.Tests.Reporting
 
             EventMetricsCleaner.RemoveEvent(metricNameTypeTags);
 
-            EventMetricsCleaner.GetReportsEventCount(reportIndex1).Should().Be(0);
-            EventMetricsCleaner.GetReportsEventCount(reportIndex2).Should().Be(0);
-
-            ResetCleaner();
-        }
-
-        [Fact]
-        public void Clear_RemovesAllReports()
-        {
-            EventMetricsCleaner.RegisterReport(new TimeSpan(0, 0, 0, 60));
-
-            EventMetricsCleaner.Clear();
-
-            EventMetricsCleaner.TotalReports.Should().Be(0);
-
-            ResetCleaner();
+            GetReportsEventCount(reportIndex1).Should().Be(0);
+            GetReportsEventCount(reportIndex2).Should().Be(0);
         }
 
         [Fact]
         public void Clean_OnlyRemovesEventDetailItems_ThatHaveBeenReportedByAllReports()
         {
+            ResetCleaner();
+
             const string context = "";
             var registry = new DefaultMetricsRegistry();
-            EventMetricsCleaner.AddRegistry(context, registry);
+            EventMetricsCleaner.ContextRegistries.Add(context, registry);
             var timer = new MockTimer();
             EventMetricsCleaner.EnableTestTimer(timer);
 
@@ -135,23 +129,23 @@ namespace Metrics.Tests.Reporting
             metric.Record();
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex2, registry.DataProvider.Events);
 
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex1, metricNameTypeTags).Should().Be(1);
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex2, metricNameTypeTags).Should().Be(2);
+            GetReportsReportedEventDetailCount(reportIndex1, metricNameTypeTags).Should().Be(1);
+            GetReportsReportedEventDetailCount(reportIndex2, metricNameTypeTags).Should().Be(2);
 
             timer.OnTimerCallback();
 
-            var registryCounts = EventMetricsCleaner.GetRegistryEventDetailCounts(MetricNameType);
+            var registryCounts = GetRegistryEventDetailCounts(MetricNameType);
             registryCounts[context].Should().Be(1);
-
-            ResetCleaner();
         }
 
         [Fact]
         public void Clean_IgnoresReportsThatHaveNotReportedAnyEvents()
         {
+            ResetCleaner();
+
             const string context = "";
             var registry = new DefaultMetricsRegistry();
-            EventMetricsCleaner.AddRegistry(context, registry);
+            EventMetricsCleaner.ContextRegistries.Add(context, registry);
             var timer = new MockTimer();
             EventMetricsCleaner.EnableTestTimer(timer);
 
@@ -163,23 +157,23 @@ namespace Metrics.Tests.Reporting
             metric.Record();
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex1, registry.DataProvider.Events);
 
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex1, metricNameTypeTags).Should().Be(1);
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex2, metricNameTypeTags).Should().Be(0);
+            GetReportsReportedEventDetailCount(reportIndex1, metricNameTypeTags).Should().Be(1);
+            GetReportsReportedEventDetailCount(reportIndex2, metricNameTypeTags).Should().Be(0);
 
             timer.OnTimerCallback();
             
-            var registryCounts = EventMetricsCleaner.GetRegistryEventDetailCounts(MetricNameType);
+            var registryCounts = GetRegistryEventDetailCounts(MetricNameType);
             registryCounts[context].Should().Be(0);
-            
-            ResetCleaner();
         }
 
         [Fact]
         public void Clean_WithNoReportsRegistered_RemovesAllEvents()
         {
+            ResetCleaner();
+
             const string context = "";
             var registry = new DefaultMetricsRegistry();
-            EventMetricsCleaner.AddRegistry(context, registry);
+            EventMetricsCleaner.ContextRegistries.Add(context, registry);
             var timer = new MockTimer();
             EventMetricsCleaner.EnableTestTimer(timer);
 
@@ -189,23 +183,23 @@ namespace Metrics.Tests.Reporting
             metric.Record();
             metric.Record();
             metric.Record();
-            var registryCounts = EventMetricsCleaner.GetRegistryEventDetailCounts(MetricNameType);
+            var registryCounts = GetRegistryEventDetailCounts(MetricNameType);
             registryCounts[context].Should().Be(3);
 
             timer.OnTimerCallback();
             
-            registryCounts = EventMetricsCleaner.GetRegistryEventDetailCounts(MetricNameType);
+            registryCounts = GetRegistryEventDetailCounts(MetricNameType);
             registryCounts[context].Should().Be(0);
-
-            ResetCleaner();
         }
 
         [Fact]
         public void Clean_WithAllReportsFilteringOutEvents_RemovesAllEvents()
         {
+            ResetCleaner();
+
             const string context = "";
             var registry = new DefaultMetricsRegistry();
-            EventMetricsCleaner.AddRegistry(context, registry);
+            EventMetricsCleaner.ContextRegistries.Add(context, registry);
             var timer = new MockTimer();
             EventMetricsCleaner.EnableTestTimer(timer);
 
@@ -219,29 +213,29 @@ namespace Metrics.Tests.Reporting
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex1, new List<EventValueSource>());
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex2, new List<EventValueSource>());
 
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex1, MetricNameType).Should().Be(0);
-            EventMetricsCleaner.GetReportsReportedEventDetailCount(reportIndex2, MetricNameType).Should().Be(0);
-            var registryCounts = EventMetricsCleaner.GetRegistryEventDetailCounts(MetricNameType);
+            GetReportsReportedEventDetailCount(reportIndex1, MetricNameType).Should().Be(0);
+            GetReportsReportedEventDetailCount(reportIndex2, MetricNameType).Should().Be(0);
+            var registryCounts = GetRegistryEventDetailCounts(MetricNameType);
             registryCounts[context].Should().Be(3);
 
             timer.OnTimerCallback();
 
-            registryCounts = EventMetricsCleaner.GetRegistryEventDetailCounts(MetricNameType);
+            registryCounts = GetRegistryEventDetailCounts(MetricNameType);
             registryCounts[context].Should().Be(0);
-
-            ResetCleaner();
         }
 
         [Fact]
         public void Clean_WithMultipleRegistriesInSeparateContexts_RemovesEvents()
         {
+            ResetCleaner();
+
             const string ctx1 = "ctx1";
             var registry1 = new DefaultMetricsRegistry();
-            EventMetricsCleaner.AddRegistry(ctx1, registry1);
+            EventMetricsCleaner.ContextRegistries.Add(ctx1, registry1);
 
             const string ctx2 = "ctx2";
             var registry2 = new DefaultMetricsRegistry();
-            EventMetricsCleaner.AddRegistry(ctx2, registry2);
+            EventMetricsCleaner.ContextRegistries.Add(ctx2, registry2);
 
             var timer = new MockTimer();
             EventMetricsCleaner.EnableTestTimer(timer);
@@ -261,23 +255,44 @@ namespace Metrics.Tests.Reporting
             metric2.Record();
             EventMetricsCleaner.UpdateTotalReportedEvents(reportIndex2, registry2.DataProvider.Events);
             
-            var registryCounts = EventMetricsCleaner.GetRegistryEventDetailCounts("test1.event");
+            var registryCounts = GetRegistryEventDetailCounts("test1.event");
             registryCounts[ctx1].Should().Be(3);
             registryCounts[ctx2].Should().Be(0);
-            registryCounts = EventMetricsCleaner.GetRegistryEventDetailCounts("test2.event");
+            registryCounts = GetRegistryEventDetailCounts("test2.event");
             registryCounts[ctx1].Should().Be(0);
             registryCounts[ctx2].Should().Be(2);
 
             timer.OnTimerCallback();
 
-            registryCounts = EventMetricsCleaner.GetRegistryEventDetailCounts("test1.event");
+            registryCounts = GetRegistryEventDetailCounts("test1.event");
             registryCounts[ctx1].Should().Be(0);
             registryCounts[ctx2].Should().Be(0);
-            registryCounts = EventMetricsCleaner.GetRegistryEventDetailCounts("test2.event");
+            registryCounts = GetRegistryEventDetailCounts("test2.event");
             registryCounts[ctx1].Should().Be(0);
             registryCounts[ctx2].Should().Be(0);
+        }
 
-            ResetCleaner();
+        private static Dictionary<string, int> GetRegistryEventDetailCounts(string eventMetricIdentifier)
+        {
+            var registryCounts = new Dictionary<string, int>();
+            foreach (var kvp in EventMetricsCleaner.ContextRegistries.Values)
+            {
+                var registry = kvp.Value;
+                var eventCount = registry.DataProvider.Events.FirstOrDefault(e => e.Name == eventMetricIdentifier);
+                registryCounts.Add(kvp.Key, eventCount?.Value.EventsCopy.Count ?? 0);
+            }
+            return registryCounts;
+        }
+
+        private static int GetReportsEventCount(int reportIdentifier)
+        {
+            return EventMetricsCleaner.ReportEvntCounts[reportIdentifier].Count;
+        }
+
+        private static int GetReportsReportedEventDetailCount(int reportIdentifier, string eventMetricIdentifier)
+        {
+            var eventCount = EventMetricsCleaner.ReportEvntCounts[reportIdentifier].FirstOrDefault(e => e.EventMetricIdentifier == eventMetricIdentifier);
+            return eventCount?.TotalEventsReported ?? 0;
         }
 
         public class MockTimer : ITimer
