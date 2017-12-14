@@ -19,7 +19,7 @@ namespace Metrics.Core
         protected BaseMetricsContext(string context, MetricsRegistry registry, MetricsBuilder metricsBuilder, Func<DateTime> timestampProvider)
         {
             this.registry = registry;
-            EventMetricsCleaner.Registry = registry;
+            EventMetricsCleaner.ContextRegistries.Add(context, registry);
             this.metricsBuilder = metricsBuilder;
             this.DataProvider = new DefaultDataProvider(context, timestampProvider, this.registry.DataProvider, () => this.childContexts.Values.Select(c => c.DataProvider));
         }
@@ -74,6 +74,8 @@ namespace Metrics.Core
             {
                 throw new ArgumentException("contextName must not be null or empty", contextName);
             }
+
+            EventMetricsCleaner.ContextRegistries.Remove(contextName);
 
             MetricsContext context;
             if (this.childContexts.TryRemove(contextName, out context))

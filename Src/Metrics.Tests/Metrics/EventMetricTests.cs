@@ -67,34 +67,34 @@ namespace Metrics.Tests.Metrics
             evnt.Value.Events.Count.Should().Be(1);
             evnt.Reset();
             evnt.Value.Events.Count.Should().Be(0);
-		}
+        }
 
-		[Fact]
-		public void EventMetric_CanBeRecordedOnMultipleThreads()
-		{
-			const int threadCount = 16;
-			const long iterations = 1000 * 100;
+        [Fact]
+        public void EventMetric_CanBeRecordedOnMultipleThreads()
+        {
+            const int threadCount = 16;
+            const long iterations = 1000 * 100;
 
-			List<Thread> threads = new List<Thread>();
-			TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
+            List<Thread> threads = new List<Thread>();
+            TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
 
-			for (int i = 0; i < threadCount; i++)
-			{
-				threads.Add(new Thread(s =>
-				{
-					tcs.Task.Wait();
-					for (long j = 0; j < iterations; j++)
-					{
-						evnt.Record();
-					}
-				}));
-			}
+            for (int i = 0; i < threadCount; i++)
+            {
+                threads.Add(new Thread(s =>
+                {
+                    tcs.Task.Wait();
+                    for (long j = 0; j < iterations; j++)
+                    {
+                        evnt.Record();
+                    }
+                }));
+            }
 
-			threads.ForEach(t => t.Start());
-			tcs.SetResult(0);
-			threads.ForEach(t => t.Join());
+            threads.ForEach(t => t.Start());
+            tcs.SetResult(0);
+            threads.ForEach(t => t.Join());
 
-			evnt.Value.EventsCopy.Count.Should().Be(threadCount * (int)iterations);
-		}
-	}
+            evnt.Value.EventsCopy.Count.Should().Be(threadCount * (int)iterations);
+        }
+    }
 }
