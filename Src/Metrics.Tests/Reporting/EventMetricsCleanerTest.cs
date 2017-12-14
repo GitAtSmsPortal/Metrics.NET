@@ -20,7 +20,7 @@ namespace Metrics.Tests.Reporting
         public void ResetCleaner()
         {
             EventMetricsCleaner.ContextRegistries.Clear();
-            EventMetricsCleaner.ReportEvntCounts.Clear();
+            EventMetricsCleaner.ReportEventCounts.Clear();
             EventMetricsCleaner.ResetInterval();
         }
 
@@ -286,12 +286,12 @@ namespace Metrics.Tests.Reporting
 
         private static int GetReportsEventCount(int reportIdentifier)
         {
-            return EventMetricsCleaner.ReportEvntCounts[reportIdentifier].Count;
+            return EventMetricsCleaner.ReportEventCounts[reportIdentifier].Count;
         }
 
         private static int GetReportsReportedEventDetailCount(int reportIdentifier, string eventMetricIdentifier)
         {
-            var eventCount = EventMetricsCleaner.ReportEvntCounts[reportIdentifier].FirstOrDefault(e => e.EventMetricIdentifier == eventMetricIdentifier);
+            var eventCount = EventMetricsCleaner.ReportEventCounts[reportIdentifier].FirstOrDefault(e => e.EventMetricIdentifier == eventMetricIdentifier);
             return eventCount?.TotalEventsReported ?? 0;
         }
 

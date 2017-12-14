@@ -18,7 +18,7 @@ namespace Metrics.Reporters.Cleaners
         /// <summary>
         /// Collection of reports and their respective counts associated with the events thay have reported.
         /// </summary>
-        public static readonly ReportEventCounts ReportEvntCounts;
+        public static readonly ReportEventCounts ReportEventCounts;
 
         /// <summary>
         /// Collection of MetricsRegistry objects related to their contexts.
@@ -27,7 +27,7 @@ namespace Metrics.Reporters.Cleaners
 
         static EventMetricsCleaner()
         {
-            ReportEvntCounts = new ReportEventCounts();
+            ReportEventCounts = new ReportEventCounts();
             ContextRegistries = new ContextRegistriesWrapper();
             curInterval = cleanIntervalBuffer;
 
@@ -61,7 +61,7 @@ namespace Metrics.Reporters.Cleaners
         {
             get
             {
-                return ReportEvntCounts.Count;
+                return ReportEventCounts.Count;
             }
         }
 
@@ -94,8 +94,8 @@ namespace Metrics.Reporters.Cleaners
                 }
             }
 
-            ReportEvntCounts.Add(new HashSet<EventCount>());
-            return ReportEvntCounts.Count - 1;
+            ReportEventCounts.Add(new HashSet<EventCount>());
+            return ReportEventCounts.Count - 1;
         }
 
         /// <summary>
@@ -105,13 +105,13 @@ namespace Metrics.Reporters.Cleaners
         /// <param name="events">The events reported by the reporter.</param>
         public static void UpdateTotalReportedEvents(int reportIdentifier, IEnumerable<EventValueSource> events)
         {
-            if (reportIdentifier >= 0 && reportIdentifier < ReportEvntCounts.Count)
+            if (reportIdentifier >= 0 && reportIdentifier < ReportEventCounts.Count)
             {
                 foreach (var evntSrc in events)
                 {
                     var count = evntSrc.Value.EventsCopy.Count;
                     var eventMetricId = MetricIdentifier.Calculate(evntSrc.Name, evntSrc.Tags);
-                    var report = ReportEvntCounts[reportIdentifier];
+                    var report = ReportEventCounts[reportIdentifier];
 
                     var eventCount = report.FirstOrDefault(e => e.EventMetricIdentifier == eventMetricId);
                     if (eventCount != null)
@@ -148,7 +148,7 @@ namespace Metrics.Reporters.Cleaners
         /// <param name="eventMetricIdentifier">The unique identifier for the event to remove.</param>
         public static void RemoveEvent(string eventMetricIdentifier)
         {
-            foreach (var eventCount in ReportEvntCounts)
+            foreach (var eventCount in ReportEventCounts)
             {
                 if (!string.IsNullOrWhiteSpace(eventMetricIdentifier))
                 { 
@@ -167,7 +167,7 @@ namespace Metrics.Reporters.Cleaners
                 var registry = kvp.Value;
                 if (registry != null)
                 {
-                    if (ReportEvntCounts.Count == 0)
+                    if (ReportEventCounts.Count == 0)
                     {
                         registry.ClearEventValues();
                         return;
@@ -175,7 +175,7 @@ namespace Metrics.Reporters.Cleaners
 
                     var eventMetricIdentifiers = new HashSet<string>();
                     var lowestNumEventsReported = new Dictionary<string, int>();
-                    foreach (var eventCounts in ReportEvntCounts)
+                    foreach (var eventCounts in ReportEventCounts)
                     {
                         foreach (var eventCount in eventCounts)
                         {
