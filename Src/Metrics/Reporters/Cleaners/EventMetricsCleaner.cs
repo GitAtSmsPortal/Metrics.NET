@@ -23,12 +23,12 @@ namespace Metrics.Reporters.Cleaners
         /// <summary>
         /// Collection of MetricsRegistry objects related to their contexts.
         /// </summary>
-        public static ContextRegistriesWrapper ContextRegistries;
+        public static ContextRegistries ContextRegistries;
 
         static EventMetricsCleaner()
         {
             ReportEventCounts = new ReportEventCounts();
-            ContextRegistries = new ContextRegistriesWrapper();
+            ContextRegistries = new ContextRegistries();
             curInterval = cleanIntervalBuffer;
 
             timer = new ThreadingTimer(null, curInterval, curInterval);
@@ -243,7 +243,7 @@ namespace Metrics.Reporters.Cleaners
     /// <summary>
     /// Collection of MetricsRegistry objects related to their contexts.
     /// </summary>
-    public class ContextRegistriesWrapper
+    public class ContextRegistries
     {
         private readonly Dictionary<string, MetricsRegistry> cntxtRegistry;
 
@@ -260,7 +260,7 @@ namespace Metrics.Reporters.Cleaners
             }
         }
 
-        public ContextRegistriesWrapper()
+        public ContextRegistries()
         {
             this.cntxtRegistry = new Dictionary<string, MetricsRegistry>();
         }
