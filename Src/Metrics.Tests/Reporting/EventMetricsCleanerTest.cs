@@ -25,14 +25,6 @@ namespace Metrics.Tests.Reporting
         }
 
         [Fact]
-        public void StartsWithZeroReports()
-        {
-            ResetCleaner();
-
-            EventMetricsCleaner.TotalReports.Should().Be(0);
-        }
-
-        [Fact]
         public void DefaultIntervalIsGreaterThanZero()
         {
             ResetCleaner();
