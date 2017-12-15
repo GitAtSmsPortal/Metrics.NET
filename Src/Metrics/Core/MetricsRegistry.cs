@@ -39,7 +39,7 @@ namespace Metrics.Core
 
         void ResetMetricsValues();
 
-        void EventValuesRemoveRange(string key, int startIndex, int count);
+        void EventValuesRemoveRangeFromStartIndex(string key, int count);
 
         void ClearEventValues();
 

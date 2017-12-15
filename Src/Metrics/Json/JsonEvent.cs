@@ -15,7 +15,7 @@ namespace Metrics.Json
             {
                 Name = evnt.Name,
                 Unit = evnt.Unit.Name,
-                Events = evnt.Value.EventsCopy,
+                Events = evnt.Value.Events,
                 Tags = evnt.Tags
             };
         }

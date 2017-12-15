@@ -37,6 +37,7 @@ namespace Metrics.Core
             public void Record(DateTime timestamp) { }
             public void Record(Dictionary<string, object> fields) { }
             public void Record(Dictionary<string, object> fields, DateTime timestamp) { }
+            public void RemoveRangeFromStartIndex(int count) { }
 
             public TimerContext NewContext(string userValue = null) { return NullContext; }
 
@@ -54,7 +55,7 @@ namespace Metrics.Core
 
         public void ClearAllMetrics() { }
         public void ResetMetricsValues() { }
-        public void EventValuesRemoveRange(string key, int startIndex, int count) { }
+        public void EventValuesRemoveRangeFromStartIndex(string key, int count) { }
         public void ClearEventValues() { }
         public void DeregisterGauge(string name, MetricTags tags) { }
         public void DeregisterMeter(string name, MetricTags tags) { }

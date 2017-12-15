@@ -17,7 +17,8 @@ namespace Metrics.Core
             {
                 lock (locker)
                 {
-                    return new EventValue(this.events);
+                    var tmpEvents = new List<EventDetails>(this.events);
+                    return new EventValue(tmpEvents);
                 }
             }
         }
@@ -57,6 +58,14 @@ namespace Metrics.Core
             lock (locker)
             {
                 this.events.Add(new EventDetails(fields, timestamp));
+            }
+        }
+
+        public void RemoveRangeFromStartIndex(int count)
+        {
+            lock (locker)
+            {
+                this.events.RemoveRange(0, count > this.events.Count ? this.events.Count : count);
             }
         }
 

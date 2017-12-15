@@ -33,5 +33,12 @@ namespace Metrics
         /// <param name="fields">The fields associated with the event.</param>
         /// <param name="timestamp">The timestamp of the event.</param>
         void Record(Dictionary<string, object> fields, DateTime timestamp);
+
+        /// <summary>
+        /// Removes the specified total number of items from the start of the event list.
+        /// </summary>
+        /// <param name="count">The total number of events to remove.</param>
+        void RemoveRangeFromStartIndex(int count);
+
     }
 }

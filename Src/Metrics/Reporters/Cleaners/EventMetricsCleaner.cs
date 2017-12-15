@@ -109,7 +109,7 @@ namespace Metrics.Reporters.Cleaners
             {
                 foreach (var evntSrc in events)
                 {
-                    var count = evntSrc.Value.EventsCopy.Count;
+                    var count = evntSrc.Value.Events.Count;
                     var eventMetricId = MetricIdentifier.Calculate(evntSrc.Name, evntSrc.Tags);
                     var report = ReportEventCounts[reportIdentifier];
 
@@ -215,7 +215,7 @@ namespace Metrics.Reporters.Cleaners
 
                     foreach (var eventMetricId in eventMetricIdentifiers)
                     {
-                        registry.EventValuesRemoveRange(eventMetricId, 0, lowestNumEventsReported[eventMetricId]);
+                        registry.EventValuesRemoveRangeFromStartIndex(eventMetricId, lowestNumEventsReported[eventMetricId]);
                     }
                 }
             }
