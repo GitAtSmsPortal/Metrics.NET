@@ -93,7 +93,7 @@ namespace Metrics.Reporters
         protected override void ReportEvent(string name, EventValue value, MetricTags tags)
         {
             this.WriteMetricName(name);
-            foreach (var evnt in value.EventsCopy)
+            foreach (var evnt in value.Events)
             {
                 this.WriteValue("Timestamp", evnt.Timestamp.ToString());
                 foreach (var kvp in evnt.Fields)

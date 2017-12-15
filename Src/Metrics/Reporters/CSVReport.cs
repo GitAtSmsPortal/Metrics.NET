@@ -74,7 +74,7 @@ namespace Metrics.Reporters
 
         protected override void ReportEvent(string name, EventValue value, MetricTags tags)
         {
-            Write("Event", name, EventValues(value.EventsCopy));
+            Write("Event", name, EventValues(value.Events));
         }
 
         protected override void ReportHealth(HealthStatus status)

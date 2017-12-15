@@ -72,17 +72,17 @@ namespace Metrics.Core
                 }
             }
 
-            public void EventValuesRemoveRange(string key, int startIndex, int count)
+            public void EventValuesRemoveRangeFromStartIndex(string key, int count)
             {
                 lock (this.locker)
                 {
                     MetricMeta metricMeta;
                     if (this.metrics.TryGetValue(key, out metricMeta))
                     {
-                        var src = metricMeta.Value as EventValueSource;
+                        var src = metricMeta.Metric as Event;
                         if (src != null)
                         {
-                            src.Value.Events.RemoveRange(startIndex, src.Value.Events.Count < count ? src.Value.Events.Count : count);
+                            src.RemoveRangeFromStartIndex(count);
                         }
                     }
                 }
@@ -94,10 +94,10 @@ namespace Metrics.Core
                 {
                     foreach (var metricMeta in this.metrics.Values)
                     {
-                        var src = metricMeta.Value as EventValueSource;
+                        var src = metricMeta.Metric as Event;
                         if (src != null)
                         {
-                            src.Value.Events.Clear();
+                            src.Reset();
                         }
                     }
                 }
@@ -142,9 +142,9 @@ namespace Metrics.Core
                 () => this.events.All);
         }
 
-        public void EventValuesRemoveRange(string key, int startIndex, int count)
+        public void EventValuesRemoveRangeFromStartIndex(string key, int count)
         {
-            events.EventValuesRemoveRange(key, startIndex, count);
+            events.EventValuesRemoveRangeFromStartIndex(key, count);
         }
 
         public void ClearEventValues()

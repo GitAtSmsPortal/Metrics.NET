@@ -6,11 +6,6 @@ namespace Metrics.MetricData
 {
     public struct EventValue
     {
-        public List<EventDetails> EventsCopy
-        {
-            get { return new List<EventDetails>(Events); }
-        }
-
         public List<EventDetails> Events { get; }
 
         public EventValue(List<EventDetails> events)

@@ -271,7 +271,7 @@ namespace Metrics.Tests.Reporting
             {
                 var registry = kvp.Value;
                 var eventCount = registry.DataProvider.Events.FirstOrDefault(e => e.Name == eventMetricIdentifier);
-                registryCounts.Add(kvp.Key, eventCount?.Value.EventsCopy.Count ?? 0);
+                registryCounts.Add(kvp.Key, eventCount?.Value.Events.Count ?? 0);
             }
             return registryCounts;
         }

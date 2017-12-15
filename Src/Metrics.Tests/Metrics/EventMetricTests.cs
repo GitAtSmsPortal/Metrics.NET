@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Metrics.Core;
+using Metrics.MetricData;
 using Xunit;
 
 namespace Metrics.Tests.Metrics
@@ -75,10 +76,10 @@ namespace Metrics.Tests.Metrics
             const int threadCount = 16;
             const long iterations = 1000 * 100;
 
-            List<Thread> threads = new List<Thread>();
-            TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
+            var threads = new List<Thread>();
+            var tcs = new TaskCompletionSource<int>();
 
-            for (int i = 0; i < threadCount; i++)
+            for (var i = 0; i < threadCount; i++)
             {
                 threads.Add(new Thread(s =>
                 {
@@ -94,7 +95,66 @@ namespace Metrics.Tests.Metrics
             tcs.SetResult(0);
             threads.ForEach(t => t.Join());
 
-            evnt.Value.EventsCopy.Count.Should().Be(threadCount * (int)iterations);
+            evnt.Value.Events.Count.Should().Be(threadCount * (int)iterations);
+        }
+
+        [Fact]
+        public void EventMetric_IsReadWriteThreadSafe()
+        {
+            const int threadCount = 16;
+            const long iterations = 1000 * 100;
+
+            var threads = new List<Thread>();
+            var tcs = new TaskCompletionSource<int>();
+
+            var threwException = false;
+            for (var i = 0; i < threadCount; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    threads.Add(new Thread(s =>
+                    {
+                        tcs.Task.Wait();
+                        for (long j = 0; j < iterations; j++)
+                        {
+                            if (threwException)
+                            {
+                                break;
+                            }
+                            evnt.Value.Events.Add(new EventDetails(new Dictionary<string, object>(), DateTime.UtcNow));
+                        }
+                    }));
+                }
+                else
+                {
+                    threads.Add(new Thread(s =>
+                    {
+                        tcs.Task.Wait();
+                        for (long j = 0; j < iterations; j++)
+                        {
+                            try
+                            {
+                                if (threwException)
+                                {
+                                    break;
+                                }
+                                var copy = evnt.Value.Events;
+                            }
+                            catch
+                            {
+                                threwException = true;
+                                break;
+                            }
+                        }
+                    }));
+                }
+            }
+
+            threads.ForEach(t => t.Start());
+            tcs.SetResult(0);
+            threads.ForEach(t => t.Join());
+
+            threwException.Should().BeFalse();
         }
     }
 }
