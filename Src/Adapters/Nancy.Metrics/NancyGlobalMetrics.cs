@@ -1,4 +1,5 @@
 ﻿
+using System.Net;
 using Metrics;
 using Metrics.Utils;
 using Nancy.Bootstrapper;
@@ -7,6 +8,7 @@ namespace Nancy.Metrics
     public class NancyGlobalMetrics : IHideObjectMembers
     {
         private const string RequestStartTimeKey = "__Metrics.RequestStartTime__";
+        private const string HTTP_OPTIONS = "OPTIONS";
 
         private static MetricsContext nancyGlobalMetricsContext;
 
@@ -145,7 +147,7 @@ namespace Nancy.Metrics
         /// Timer is created based on route and will be named:
         /// [NancyFx] {HTTP_METHOD_NAME} {ROUTE_PATH}
         /// </summary>
-        public NancyGlobalMetrics WithTimerForEachRequest()
+        public NancyGlobalMetrics WithTimerForEachRequest(bool ignoreOptions = false)
         {
             nancyPipelines.BeforeRequest.AddItemToStartOfPipeline(ctx =>
             {
@@ -157,7 +159,13 @@ namespace Nancy.Metrics
             {
                 if (ctx.ResolvedRoute != null && !(ctx.ResolvedRoute is Routing.NotFoundRoute))
                 {
+                    var method = ctx.Request.Method.ToUpper();
+                    if (ignoreOptions && method == "OPTIONS")
+                    {
+                        return;
+                    }
                     string name = string.Format("{0} {1}", ctx.ResolvedRoute.Description.Method, ctx.ResolvedRoute.Description.Path);
+                    
                     var startTime = (long)ctx.Items["RequestStartTimeKey"];
                     var elapsed = Clock.Default.Nanoseconds - startTime;
                     this.context.Timer(name, Unit.Requests)
